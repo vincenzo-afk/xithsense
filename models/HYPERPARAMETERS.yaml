@@ -1,0 +1,68 @@
+# XithSense Model Hyperparameters v1.2
+# Tuned via Optuna on 2023-2024 IPL+T20I data (5-fold TimeSeriesSplit)
+
+xgboost_t20:
+  model_class: XGBRegressor
+  objective: reg:squarederror
+  eval_metric: mae
+  n_estimators: 1200
+  max_depth: 6
+  learning_rate: 0.03
+  subsample: 0.80
+  colsample_bytree: 0.70
+  reg_alpha: 0.10
+  reg_lambda: 1.00
+  min_child_weight: 5
+  gamma: 0.10
+  early_stopping_rounds: 50
+  random_state: 42
+  n_jobs: -1
+
+lightgbm_t20:
+  model_class: LGBMRegressor
+  objective: regression_l1
+  metric: mae
+  n_estimators: 1500
+  max_depth: 7
+  learning_rate: 0.025
+  num_leaves: 63
+  subsample: 0.80
+  colsample_bytree: 0.70
+  reg_alpha: 0.05
+  reg_lambda: 0.50
+  min_child_samples: 20
+  early_stopping_rounds: 50
+  random_state: 42
+  n_jobs: -1
+  verbose: -1
+
+catboost_t20:
+  model_class: CatBoostRegressor
+  loss_function: MAE
+  eval_metric: MAE
+  iterations: 1000
+  depth: 7
+  learning_rate: 0.05
+  l2_leaf_reg: 3.0
+  border_count: 128
+  early_stopping_rounds: 50
+  random_state: 42
+  verbose: false
+
+lightgbm_odi:
+  model_class: LGBMRegressor
+  objective: regression_l1
+  metric: mae
+  n_estimators: 1200
+  max_depth: 6
+  learning_rate: 0.03
+  num_leaves: 47
+  subsample: 0.80
+  colsample_bytree: 0.70
+  reg_alpha: 0.05
+  reg_lambda: 1.0
+  min_child_samples: 25
+  early_stopping_rounds: 50
+  random_state: 42
+  n_jobs: -1
+  verbose: -1

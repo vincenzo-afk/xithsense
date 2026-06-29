@@ -1,0 +1,236 @@
+{
+  "_comment": "Representative sample records for every major table. Use for seeding test fixtures.",
+
+  "user": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "email": "rahul@example.com",
+      "password_hash": "$2b$12$KIXhDsamplehashvalue",
+      "full_name": "Rahul Sharma",
+      "phone": null,
+      "role": "premium",
+      "is_active": true,
+      "is_verified": true,
+      "last_login_at": "2026-06-25T09:30:00Z",
+      "created_at": "2026-03-01T10:00:00Z"
+    },
+    {
+      "id": "b2c3d4e5-f6a7-8901-bcde-fa2345678901",
+      "email": "priya@example.com",
+      "password_hash": "$2b$12$AnotherSampleHash",
+      "full_name": "Priya Nair",
+      "role": "free",
+      "is_active": true,
+      "is_verified": true,
+      "created_at": "2026-05-15T14:22:00Z"
+    }
+  ],
+
+  "subscription": [
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdef-ab3456789012",
+      "user_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "plan": "premium_monthly",
+      "status": "active",
+      "razorpay_sub_id": "sub_OexampleRazorpay01",
+      "razorpay_customer_id": "cust_OexampleCustomer01",
+      "current_period_start": "2026-06-01T00:00:00Z",
+      "current_period_end": "2026-07-01T00:00:00Z",
+      "cancelled_at": null,
+      "created_at": "2026-06-01T08:00:00Z"
+    }
+  ],
+
+  "match": [
+    {
+      "id": "1535465",
+      "match_type": "T20",
+      "gender": "male",
+      "team_type": "club",
+      "venue_name": "Narendra Modi Stadium, Ahmedabad",
+      "city": "Ahmedabad",
+      "team_a": "Gujarat Titans",
+      "team_b": "Royal Challengers Bengaluru",
+      "toss_winner": "Royal Challengers Bengaluru",
+      "toss_decision": "field",
+      "match_winner": "Royal Challengers Bengaluru",
+      "win_by_wickets": 5,
+      "win_by_runs": null,
+      "player_of_match": ["Kohli, V"],
+      "season": "2026",
+      "event_name": "Indian Premier League",
+      "event_stage": "Final",
+      "match_date": "2026-05-25",
+      "day_night": true,
+      "balls_per_over": 6,
+      "data_version": "1.2.0",
+      "is_complete": true
+    },
+    {
+      "id": "1000851",
+      "match_type": "Test",
+      "gender": "male",
+      "team_type": "international",
+      "venue_name": "Newlands, Cape Town",
+      "city": "Cape Town",
+      "team_a": "South Africa",
+      "team_b": "Australia",
+      "toss_winner": "Australia",
+      "toss_decision": "bat",
+      "match_winner": "Australia",
+      "win_by_runs": 23,
+      "win_by_wickets": null,
+      "player_of_match": ["Starc, MA"],
+      "season": "2016",
+      "event_name": "Australia tour of South Africa",
+      "event_stage": null,
+      "match_date": "2016-11-03",
+      "day_night": false,
+      "balls_per_over": 6,
+      "is_complete": true
+    }
+  ],
+
+  "player": [
+    {
+      "id": "d4e5f6a7-b8c9-0123-defa-bc4567890123",
+      "full_name": "Virat Kohli",
+      "cricsheet_key": "Kohli, V",
+      "short_name": "V Kohli",
+      "nationality": "India",
+      "batting_style": "Right-hand bat",
+      "bowling_style": "Right-arm medium",
+      "primary_role": "BAT",
+      "dob": "1988-11-05",
+      "is_active": true
+    },
+    {
+      "id": "e5f6a7b8-c9d0-1234-efab-cd5678901234",
+      "full_name": "Jasprit Bumrah",
+      "cricsheet_key": "Bumrah, JJ",
+      "short_name": "J Bumrah",
+      "nationality": "India",
+      "batting_style": "Right-hand bat",
+      "bowling_style": "Right-arm fast-medium",
+      "primary_role": "BOWL",
+      "dob": "1993-12-06",
+      "is_active": true
+    }
+  ],
+
+  "delivery": [
+    {
+      "id": "f6a7b8c9-d0e1-2345-fabc-de6789012345",
+      "match_id": "1535465",
+      "over_number": 2,
+      "ball_number": 2.2,
+      "batter": "Shubman Gill",
+      "bowler": "JR Hazlewood",
+      "non_striker": "B Sai Sudharsan",
+      "runs_batter": 0,
+      "runs_extras": 0,
+      "runs_total": 0,
+      "is_wide": false,
+      "is_no_ball": false,
+      "is_wicket": true,
+      "wicket_player_out": "Shubman Gill",
+      "wicket_kind": "caught",
+      "wicket_fielder": "RM Patidar",
+      "is_powerplay": true,
+      "phase": "powerplay"
+    }
+  ],
+
+  "player_match_performance": [
+    {
+      "id": "a7b8c9d0-e1f2-3456-abcd-ef7890123456",
+      "match_id": "1535465",
+      "player_id": "d4e5f6a7-b8c9-0123-defa-bc4567890123",
+      "team": "Royal Challengers Bengaluru",
+      "runs_scored": 77,
+      "balls_faced": 47,
+      "fours": 6,
+      "sixes": 4,
+      "strike_rate": 163.83,
+      "is_dismissed": false,
+      "batting_position": 3,
+      "overs_bowled": 0.0,
+      "wickets_taken": 0,
+      "economy": null,
+      "catches": 1,
+      "run_outs": 0,
+      "stumpings": 0,
+      "fantasy_points": 116.0,
+      "fantasy_platform": "dream11"
+    }
+  ],
+
+  "rolling_feature": [
+    {
+      "player_id": "d4e5f6a7-b8c9-0123-defa-bc4567890123",
+      "match_type": "T20",
+      "as_of_date": "2026-05-24",
+      "window_matches": 5,
+      "avg_runs": 52.4,
+      "avg_sr": 141.6,
+      "avg_fours": 5.2,
+      "avg_sixes": 3.0,
+      "fp_avg": 68.3,
+      "fp_ceiling": 116.0,
+      "fp_floor": 18.0,
+      "fp_consistency": 0.48,
+      "matches_included": 5
+    }
+  ],
+
+  "human_rule": [
+    {
+      "id": "b8c9d0e1-f2a3-4567-bcde-fa8901234567",
+      "rule_type": "player",
+      "player_key": "Kohli, V",
+      "condition_json": {"is_chasing": true, "match_type": ["T20", "IPL"]},
+      "impact_score": 22,
+      "confidence": 0.87,
+      "description": "Virat Kohli averages significantly higher while chasing in T20 cricket",
+      "source": "Career T20 chasing avg 54.2 vs setting avg 34.1 (Cricsheet 2016-2026)",
+      "is_active": true,
+      "match_types": ["T20", "IPL"]
+    }
+  ],
+
+  "predicted_player": [
+    {
+      "player_id": "d4e5f6a7-b8c9-0123-defa-bc4567890123",
+      "full_name": "Virat Kohli",
+      "ensemble_score": 82.4,
+      "ml_score": 68.3,
+      "rules_score": 19.14,
+      "form_score": 74.1,
+      "live_score": null,
+      "fp_predicted": 65.2,
+      "fp_ceiling": 116.0,
+      "fp_floor": 18.0,
+      "confidence": 87,
+      "rank": 1,
+      "rules_fired": ["RULE-0001"],
+      "explanation": "Kohli is the standout pick today as a chasing specialist at Ahmedabad. Last 5 T20s: 68.3 avg FP. Career chasing avg 54.2 vs 34.1 setting. Confidence: High."
+    }
+  ],
+
+  "model_version": [
+    {
+      "id": "c9d0e1f2-a3b4-5678-cdef-ab9012345678",
+      "name": "fantasy_points_xgb",
+      "model_type": "xgboost",
+      "match_type": "T20",
+      "artifact_path": "models/artifacts/m01_t20_20260601.pkl",
+      "feature_count": 47,
+      "train_mae": 10.82,
+      "val_mae": 11.94,
+      "train_from": "2010-01-01",
+      "train_to": "2024-12-31",
+      "is_active": true,
+      "created_at": "2026-06-01T00:00:00Z"
+    }
+  ]
+}

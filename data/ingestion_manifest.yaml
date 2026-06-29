@@ -1,0 +1,62 @@
+# XithSense Data Ingestion Manifest
+# Defines all data sources and their ingestion configurations
+
+version: "1.0"
+
+sources:
+  cricsheet_all_json:
+    type: local_zip
+    path: "data/raw/all_json.zip"
+    format: cricsheet_json_v1_2_0
+    enabled: true
+    incremental_support: true
+    incremental_key: match_date
+    description: "Full Cricsheet ball-by-ball dataset"
+
+  cricsheet_latest:
+    type: http
+    url: "https://cricsheet.org/downloads/all_json.zip"
+    format: cricsheet_json_v1_2_0
+    enabled: false   # Enable after confirming rate limits
+    refresh_schedule: "0 2 * * *"   # Daily at 2 AM IST
+    description: "Auto-download latest Cricsheet data nightly"
+
+pipelines:
+  full_ingest:
+    source: cricsheet_all_json
+    steps:
+      - validate_schema
+      - parse_match_info
+      - parse_innings
+      - parse_deliveries
+      - compute_player_performances
+      - compute_fantasy_points
+    on_error: continue   # Log error and continue to next file
+    batch_size: 500
+
+  incremental_ingest:
+    source: cricsheet_all_json
+    incremental: true
+    steps:
+      - validate_schema
+      - parse_match_info
+      - parse_innings
+      - parse_deliveries
+      - compute_player_performances
+      - compute_fantasy_points
+      - trigger_feature_rebuild
+    on_error: continue
+
+feature_pipelines:
+  rolling_features:
+    depends_on: full_ingest
+    windows: [3, 5, 10]
+    match_types: ["T20", "ODI", "Test", "IPL", "BBL", "PSL", "CPL", "IT20"]
+
+  venue_stats:
+    depends_on: full_ingest
+    min_matches_threshold: 5
+
+  matchup_stats:
+    depends_on: full_ingest
+    min_balls_threshold: 30

@@ -1,0 +1,63 @@
+# XithSense Model Registry
+# Every trained model version is registered here
+# Only one model per (model_name, match_type) can have is_active: true
+
+models:
+  - id: "m01-t20-20260601"
+    name: "fantasy_points_xgb"
+    description: "XGBoost fantasy points prediction — T20/IPL"
+    model_type: "xgboost"
+    match_types: ["T20", "IPL", "IT20", "BBL", "PSL", "CPL", "WPL"]
+    artifact_path: "models/artifacts/m01_t20_20260601.pkl"
+    feature_list_version: "v1.2"
+    train_mae: 10.82
+    val_mae: 11.94
+    test_mae: 12.31
+    captain_accuracy: 0.401
+    correct_player_rate: 0.621
+    train_from: "2010-01-01"
+    train_to: "2024-12-31"
+    val_from: "2025-01-01"
+    val_to: "2025-12-31"
+    feature_count: 47
+    is_active: true
+    created_at: "2026-06-01"
+
+  - id: "m02-t20-20260601"
+    name: "fantasy_points_lgb"
+    description: "LightGBM fantasy points prediction — T20/IPL"
+    model_type: "lightgbm"
+    match_types: ["T20", "IPL", "IT20", "BBL", "PSL", "CPL", "WPL"]
+    artifact_path: "models/artifacts/m02_t20_20260601.pkl"
+    feature_list_version: "v1.2"
+    train_mae: 10.61
+    val_mae: 11.78
+    feature_count: 47
+    is_active: true
+    created_at: "2026-06-01"
+
+  - id: "m03-t20-20260601"
+    name: "fantasy_points_cat"
+    description: "CatBoost fantasy points prediction — T20/IPL"
+    model_type: "catboost"
+    match_types: ["T20", "IPL", "IT20", "BBL", "PSL", "CPL", "WPL"]
+    artifact_path: "models/artifacts/m03_t20_20260601.cbm"
+    feature_list_version: "v1.2"
+    train_mae: 10.94
+    val_mae: 12.08
+    feature_count: 47
+    is_active: true
+    created_at: "2026-06-01"
+
+  - id: "m07-odi-20260601"
+    name: "fantasy_points_odi"
+    description: "LightGBM fantasy points prediction — ODI"
+    model_type: "lightgbm"
+    match_types: ["ODI", "ODM", "WOD"]
+    artifact_path: "models/artifacts/m07_odi_20260601.pkl"
+    feature_list_version: "v1.2"
+    train_mae: 14.21
+    val_mae: 15.83
+    feature_count: 47
+    is_active: true
+    created_at: "2026-06-01"

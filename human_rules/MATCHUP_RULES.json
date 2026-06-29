@@ -1,0 +1,38 @@
+[
+  {
+    "id": "RULE-0201",
+    "rule_type": "matchup",
+    "player_key": null,
+    "condition": { "batting_style": "Left-hand bat", "opposition_bowling_type": "spin_left", "match_type": ["T20", "IPL"] },
+    "impact_score": -12,
+    "confidence": 0.72,
+    "description": "Left-handed batters generally struggle against left-arm orthodox spin due to natural angle",
+    "source": "LHB vs left-arm spin dismissal rate: 0.037/ball vs 0.024/ball average (Cricsheet T20 2015-2026)",
+    "match_types": ["T20", "IPL"],
+    "is_active": true
+  },
+  {
+    "id": "RULE-0202",
+    "rule_type": "matchup",
+    "player_key": null,
+    "condition": { "batting_style": "Right-hand bat", "opposition_bowling_type": "spin_wrist", "pitch_type": "spin" },
+    "impact_score": -15,
+    "confidence": 0.68,
+    "description": "Right-handed batters on spin tracks against wrist spinners show higher dismissal rates",
+    "source": "RHB vs wrist spin on turning tracks dismissal: 0.044/ball (Cricsheet subcontinent T20 2018-2026)",
+    "match_types": null,
+    "is_active": true
+  },
+  {
+    "id": "RULE-0203",
+    "rule_type": "matchup",
+    "player_key": null,
+    "condition": { "primary_role": "BOWL", "bowling_style_contains": "off-break", "venue": "Chepauk" },
+    "impact_score": 25,
+    "confidence": 0.80,
+    "description": "Off-break bowlers thrive at Chepauk due to rough outside the right-hander's off-stump",
+    "source": "Off-spin economy at Chepauk: 6.8 vs IPL avg 8.2 (Cricsheet 2015-2026)",
+    "match_types": ["T20", "IPL"],
+    "is_active": true
+  }
+]

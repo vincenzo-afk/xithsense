@@ -1,0 +1,201 @@
+openapi: "3.1.0"
+info:
+  title: XithSense API
+  version: "1.0.0"
+  description: AI-powered fantasy cricket intelligence platform API
+  contact:
+    name: XithSense Support
+    email: support@xithsense.com
+  license:
+    name: MIT
+
+servers:
+  - url: https://api.xithsense.com
+    description: Production
+  - url: https://staging-api.xithsense.com
+    description: Staging
+  - url: http://localhost:8000
+    description: Local development
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details: { type: object }
+            request_id: { type: string, format: uuid }
+
+    Player:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        full_name: { type: string }
+        short_name: { type: string }
+        primary_role: { type: string, enum: [BAT, BOWL, AR, WK] }
+        batting_style: { type: string }
+        bowling_style: { type: string }
+        nationality: { type: string }
+        is_active: { type: boolean }
+
+    Match:
+      type: object
+      properties:
+        id: { type: string }
+        match_type: { type: string }
+        team_a: { type: string }
+        team_b: { type: string }
+        venue_name: { type: string }
+        match_date: { type: string, format: date }
+        toss: { type: object }
+        season: { type: string }
+
+    TeamPredictionRequest:
+      type: object
+      required: [match_id, mode]
+      properties:
+        match_id: { type: string }
+        mode:
+          type: string
+          enum: [safe, grand_league, aggressive, small_league]
+        count:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 1
+
+    PlayerSlot:
+      type: object
+      properties:
+        player_id: { type: string, format: uuid }
+        full_name: { type: string }
+        role: { type: string, enum: [BAT, BOWL, AR, WK] }
+        credits: { type: number }
+        predicted_fp: { type: number }
+        fp_ceiling: { type: number }
+        confidence: { type: integer, minimum: 0, maximum: 100 }
+        is_differential: { type: boolean }
+        ownership_estimate: { type: string }
+        explanation: { type: string }
+
+    GeneratedTeam:
+      type: object
+      properties:
+        players:
+          type: array
+          items: { $ref: "#/components/schemas/PlayerSlot" }
+        captain: { $ref: "#/components/schemas/PlayerSlot" }
+        vice_captain: { $ref: "#/components/schemas/PlayerSlot" }
+        total_credits: { type: number }
+        predicted_total_fp: { type: number }
+        team_ceiling: { type: number }
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      security: []
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ok }
+                  version: { type: string }
+
+  /api/v1/auth/register:
+    post:
+      summary: Register a new user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                full_name: { type: string }
+      responses:
+        "201": { description: User created }
+        "400": { description: Validation error }
+        "409": { description: Email already registered }
+
+  /api/v1/matches/upcoming:
+    get:
+      summary: List upcoming matches
+      parameters:
+        - name: format
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10 }
+      responses:
+        "200": { description: List of upcoming matches }
+
+  /api/v1/predict/team:
+    post:
+      summary: Generate fantasy team(s) for a match
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TeamPredictionRequest" }
+      responses:
+        "200":
+          description: Generated teams
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prediction_id: { type: string, format: uuid }
+                  teams:
+                    type: array
+                    items: { $ref: "#/components/schemas/GeneratedTeam" }
+        "402": { description: Premium required for count > 1 }
+        "404": { description: Match not found }
+
+  /api/v1/chat:
+    post:
+      summary: AI chat assistant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [match_id, message]
+              properties:
+                match_id: { type: string }
+                message: { type: string }
+                session_id: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Assistant response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  session_id: { type: string }
+                  answer: { type: string }

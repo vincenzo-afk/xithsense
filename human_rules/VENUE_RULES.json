@@ -1,0 +1,62 @@
+[
+  {
+    "id": "RULE-0101",
+    "rule_type": "venue",
+    "player_key": null,
+    "condition": { "venue": "Wankhede", "toss_decision": "field", "match_type": ["T20", "IPL"] },
+    "impact_score": 15,
+    "confidence": 0.78,
+    "description": "Batting second at Wankhede is highly advantageous due to dew factor",
+    "source": "Wankhede T20 chasing win rate: 68% (2019-2026, Cricsheet IPL data)",
+    "match_types": ["T20", "IPL"],
+    "is_active": true
+  },
+  {
+    "id": "RULE-0102",
+    "rule_type": "venue",
+    "player_key": null,
+    "condition": { "venue": "Chepauk", "pitch_type": "spin", "match_type": ["T20", "IPL"] },
+    "impact_score": 22,
+    "confidence": 0.81,
+    "description": "Spinners dominate at Chepauk (MA Chidambaram Stadium) — massive boost for spin bowlers",
+    "source": "Spin wicket % at Chepauk T20s: 62% vs IPL average 38% (Cricsheet 2013-2026)",
+    "match_types": ["T20", "IPL"],
+    "is_active": true
+  },
+  {
+    "id": "RULE-0103",
+    "rule_type": "venue",
+    "player_key": null,
+    "condition": { "venue": "Narendra Modi", "pitch_type": "batting", "match_type": ["T20", "IPL"] },
+    "impact_score": 18,
+    "confidence": 0.74,
+    "description": "Narendra Modi Stadium, Ahmedabad is a high-scoring venue favouring batters",
+    "source": "Avg T20 score at NMS: 182 (1st innings) vs IPL avg 171 (Cricsheet 2022-2026)",
+    "match_types": ["T20", "IPL"],
+    "is_active": true
+  },
+  {
+    "id": "RULE-0104",
+    "rule_type": "venue",
+    "player_key": null,
+    "condition": { "venue": "Eden Gardens", "toss_decision": "field" },
+    "impact_score": 12,
+    "confidence": 0.70,
+    "description": "Teams electing to field first at Eden Gardens win more often due to dew",
+    "source": "Eden Gardens field-first win rate: 61% (Cricsheet IPL T20 2014-2026)",
+    "match_types": ["T20", "IPL"],
+    "is_active": true
+  },
+  {
+    "id": "RULE-0105",
+    "rule_type": "venue",
+    "player_key": null,
+    "condition": { "venue": "Headingley", "match_type": "Test" },
+    "impact_score": 20,
+    "confidence": 0.79,
+    "description": "Headingley traditionally favours pace bowlers in Test cricket",
+    "source": "Pace wicket % at Headingley Tests: 74% (Cricsheet 2010-2026)",
+    "match_types": ["Test"],
+    "is_active": true
+  }
+]

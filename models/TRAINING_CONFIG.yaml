@@ -1,0 +1,54 @@
+# XithSense Training Configuration
+
+data:
+  train_start: "2010-01-01"
+  train_end: "2024-12-31"
+  val_start: "2025-01-01"
+  val_end: "2025-12-31"
+  test_start: "2026-01-01"
+  test_end: null  # use all available
+  min_player_matches: 3
+  time_series_cv_splits: 5
+  cv_gap_days: 30
+
+features:
+  version: "v1.2"
+  list_file: "models/FEATURE_LIST.yaml"
+  missing_value_strategy: "mean_by_role"
+
+targets:
+  primary: "fantasy_points"
+  secondary:
+    - "runs_scored"
+    - "wickets_taken"
+    - "fp_ceiling"
+
+training:
+  formats:
+    - match_type: "T20"
+      includes: ["T20", "IPL", "IT20", "BBL", "PSL", "CPL", "WPL"]
+      models: ["xgboost_t20", "lightgbm_t20", "catboost_t20"]
+    - match_type: "ODI"
+      includes: ["ODI", "ODM", "WOD"]
+      models: ["lightgbm_odi"]
+    - match_type: "Test"
+      includes: ["Test", "NTB", "WTB", "MDM"]
+      models: ["catboost_t20"]  # reuse catboost arch with different data
+
+artifacts:
+  output_dir: "models/artifacts/"
+  naming_pattern: "{model_id}_{match_type}_{date}.{ext}"
+  extensions:
+    xgboost: "pkl"
+    lightgbm: "pkl"
+    catboost: "cbm"
+
+evaluation:
+  metrics: ["mae", "rmse", "spearman_rho", "top11_accuracy", "captain_accuracy"]
+  promotion_criteria:
+    improve_val_mae_by: 1.0
+    or_improve_captain_accuracy_by: 0.02
+
+logging:
+  experiment_tracking: "evaluation/EXPERIMENT_TRACKING.md"
+  mlflow_enabled: false

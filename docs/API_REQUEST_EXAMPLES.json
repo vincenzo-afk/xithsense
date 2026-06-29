@@ -1,0 +1,121 @@
+{
+  "_comment": "Real API request body examples for every major endpoint",
+
+  "POST /api/v1/auth/register": {
+    "email": "player@example.com",
+    "password": "SecurePass123!",
+    "full_name": "Arjun Mehta"
+  },
+
+  "POST /api/v1/auth/login": {
+    "email": "player@example.com",
+    "password": "SecurePass123!"
+  },
+
+  "POST /api/v1/predict/team (safe mode)": {
+    "match_id": "1535465",
+    "mode": "safe",
+    "count": 1
+  },
+
+  "POST /api/v1/predict/team (grand league, multiple)": {
+    "match_id": "1535465",
+    "mode": "grand_league",
+    "count": 5
+  },
+
+  "POST /api/v1/predict/team (with XI override)": {
+    "match_id": "1535465",
+    "mode": "safe",
+    "count": 1,
+    "override_playing_xi": {
+      "Gujarat Titans": [
+        "Shubman Gill", "Wriddhiman Saha", "Sai Sudharsan",
+        "Vijay Shankar", "David Miller", "Rahul Tewatia",
+        "Rashid Khan", "Alzarri Joseph", "Mohammed Shami",
+        "Mohit Sharma", "Noor Ahmad"
+      ],
+      "Royal Challengers Bengaluru": [
+        "Faf du Plessis", "Virat Kohli", "Rajat Patidar",
+        "Glenn Maxwell", "Cameron Green", "Dinesh Karthik",
+        "Anuj Rawat", "Karn Sharma", "Wanindu Hasaranga",
+        "Mohammed Siraj", "Josh Hazlewood"
+      ]
+    }
+  },
+
+  "POST /api/v1/predict/captain": {
+    "match_id": "1535465",
+    "mode": "grand_league"
+  },
+
+  "POST /api/v1/chat (basic question)": {
+    "match_id": "1535465",
+    "message": "Who should I captain today?",
+    "session_id": null
+  },
+
+  "POST /api/v1/chat (follow-up in session)": {
+    "match_id": "1535465",
+    "message": "Why not Shubman Gill as captain instead?",
+    "session_id": "d4e5f6a7-b8c9-0123-defa-bc4567890123"
+  },
+
+  "POST /api/v1/chat (differential request)": {
+    "match_id": "1535465",
+    "message": "Give me 3 differential picks for grand league under 8 credits",
+    "session_id": null
+  },
+
+  "POST /api/v1/admin/ingest": {
+    "source": "cricsheet_latest",
+    "incremental": true
+  },
+
+  "POST /api/v1/admin/retrain": {
+    "format": "T20",
+    "model_ids": ["M-01", "M-02", "M-03"]
+  },
+
+  "POST /api/v1/admin/rules (new player rule)": {
+    "id": "RULE-0120",
+    "rule_type": "player",
+    "player_key": "Maxwell, GJ",
+    "condition": {
+      "pitch_type": "spin",
+      "match_type": ["T20", "IPL"]
+    },
+    "impact_score": -20,
+    "confidence": 0.76,
+    "description": "Glenn Maxwell struggles against quality spin on turning tracks",
+    "source": "Dismissal rate vs spin on turning pitches: 0.048/ball (Cricsheet T20 2019-2026)",
+    "is_active": true
+  },
+
+  "PATCH /api/v1/admin/rules/{rule_id} (deactivate)": {
+    "is_active": false
+  },
+
+  "PATCH /api/v1/notifications/preferences": {
+    "telegram_enabled": true,
+    "email_enabled": false,
+    "push_enabled": true,
+    "events": {
+      "EVT-01": true,
+      "EVT-02": true,
+      "EVT-03": true,
+      "EVT-04": false,
+      "EVT-05": true,
+      "EVT-07": true
+    },
+    "formats": ["T20", "IPL"]
+  },
+
+  "POST /api/v1/payments/create-subscription": {
+    "plan": "premium_monthly"
+  },
+
+  "POST /api/v1/payments/cancel": {
+    "reason": "Not using enough"
+  }
+}

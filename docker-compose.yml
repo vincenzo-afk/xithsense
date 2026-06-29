@@ -1,0 +1,102 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: xithsense
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrantdata:/qdrant/storage
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:password@db:5432/xithsense
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      QDRANT_URL: http://qdrant:6333
+    depends_on:
+      - db
+      - redis
+      - qdrant
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:password@db:5432/xithsense
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      QDRANT_URL: http://qdrant:6333
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    command: celery -A backend.worker worker -l info -c 4
+
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:password@db:5432/xithsense
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+    depends_on:
+      - redis
+    command: celery -A backend.worker beat -l info
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+  redisdata:
+  qdrantdata:

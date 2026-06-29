@@ -1,0 +1,220 @@
+# XithSense Feature List v1.2
+# Complete ordered list of features used by all models
+
+version: "1.2"
+updated: "2026-06-01"
+
+features:
+  # ── Rolling Fantasy Points ─────────────────────────────────────
+  - name: fp_avg_3
+    type: float
+    description: "Average fantasy points over last 3 matches"
+    source_table: rolling_feature
+    window: 3
+
+  - name: fp_avg_5
+    type: float
+    description: "Average fantasy points over last 5 matches"
+    source_table: rolling_feature
+    window: 5
+
+  - name: fp_avg_10
+    type: float
+    description: "Average fantasy points over last 10 matches"
+    source_table: rolling_feature
+    window: 10
+
+  - name: fp_ceiling
+    type: float
+    description: "90th percentile FP over last 10 matches"
+    source_table: rolling_feature
+    window: 10
+
+  - name: fp_floor
+    type: float
+    description: "10th percentile FP over last 10 matches"
+    source_table: rolling_feature
+    window: 10
+
+  - name: fp_consistency
+    type: float
+    description: "Coefficient of variation of FP (lower=consistent)"
+    source_table: rolling_feature
+    window: 10
+
+  - name: fp_30plus_rate
+    type: float
+    description: "Fraction of last 10 matches with FP >= 30"
+    source_table: rolling_feature
+    window: 10
+
+  # ── Rolling Batting ───────────────────────────────────────────
+  - name: avg_runs_3
+    type: float
+    source_table: rolling_feature
+    window: 3
+
+  - name: avg_runs_5
+    type: float
+    source_table: rolling_feature
+    window: 5
+
+  - name: avg_runs_10
+    type: float
+    source_table: rolling_feature
+    window: 10
+
+  - name: avg_sr_3
+    type: float
+    description: "Batting strike rate avg last 3 matches"
+    source_table: rolling_feature
+    window: 3
+
+  - name: avg_sr_5
+    type: float
+    source_table: rolling_feature
+    window: 5
+
+  - name: avg_sixes_5
+    type: float
+    source_table: rolling_feature
+    window: 5
+
+  - name: avg_fours_5
+    type: float
+    source_table: rolling_feature
+    window: 5
+
+  # ── Rolling Bowling ───────────────────────────────────────────
+  - name: avg_wickets_3
+    type: float
+    source_table: rolling_feature
+    window: 3
+
+  - name: avg_wickets_5
+    type: float
+    source_table: rolling_feature
+    window: 5
+
+  - name: avg_wickets_10
+    type: float
+    source_table: rolling_feature
+    window: 10
+
+  - name: avg_economy_3
+    type: float
+    source_table: rolling_feature
+    window: 3
+
+  - name: avg_economy_5
+    type: float
+    source_table: rolling_feature
+    window: 5
+
+  - name: dot_ball_rate_5
+    type: float
+    source_table: rolling_feature
+    window: 5
+
+  - name: wicket_per_over_5
+    type: float
+    source_table: rolling_feature
+    window: 5
+
+  # ── Venue Features ───────────────────────────────────────────
+  - name: venue_avg_runs_batting
+    type: float
+    source_table: venue_stat
+    description: "Player career batting avg at this venue"
+
+  - name: venue_avg_wickets_bowling
+    type: float
+    source_table: venue_stat
+
+  - name: venue_avg_first_innings
+    type: float
+    source_table: venue_stat
+
+  - name: venue_chasing_win_pct
+    type: float
+    source_table: venue_stat
+
+  - name: venue_spin_wicket_pct
+    type: float
+    source_table: venue_stat
+
+  - name: venue_total_matches
+    type: int
+    source_table: venue_stat
+    description: "Number of matches at venue (data confidence)"
+
+  # ── Matchup Features ─────────────────────────────────────────
+  - name: matchup_sr_vs_pace_right
+    type: float
+    source_table: matchup_stat
+
+  - name: matchup_sr_vs_pace_left
+    type: float
+    source_table: matchup_stat
+
+  - name: matchup_sr_vs_spin_off
+    type: float
+    source_table: matchup_stat
+
+  - name: matchup_sr_vs_spin_left
+    type: float
+    source_table: matchup_stat
+
+  - name: matchup_dismissal_rate_vs_pace_left
+    type: float
+    source_table: matchup_stat
+
+  - name: matchup_dismissal_rate_vs_spin_wrist
+    type: float
+    source_table: matchup_stat
+
+  # ── Context Features (computed at prediction time) ────────────
+  - name: is_chasing
+    type: int
+    values: [0, 1]
+    description: "1 if team bats second"
+
+  - name: batting_position_encoded
+    type: float
+    range: [0.0, 1.0]
+    description: "Expected batting position normalised 1-11 → 0.09-1.0"
+
+  - name: is_home_ground
+    type: int
+    values: [0, 1]
+
+  - name: match_importance
+    type: float
+    range: [0.5, 1.0]
+    description: "0.5=league, 0.7=qualifier, 0.85=eliminator, 1.0=final"
+
+  - name: days_since_last_match
+    type: int
+    description: "Rest days between matches"
+
+  - name: opposition_bowling_strength
+    type: float
+    range: [0.0, 1.0]
+    description: "Normalised opposition bowling avg rank"
+
+  # ── Categorical (label-encoded) ───────────────────────────────
+  - name: match_type_encoded
+    type: int
+    description: "T20=0, ODI=1, Test=2, IPL=3, BBL=4, ..."
+
+  - name: primary_role_encoded
+    type: int
+    description: "BAT=0, BOWL=1, AR=2, WK=3"
+
+  - name: batting_style_encoded
+    type: int
+    description: "Right-hand bat=0, Left-hand bat=1"
+
+  - name: bowling_style_encoded
+    type: int
+    description: "pace_right=0, pace_left=1, spin_off=2, spin_left=3, spin_wrist=4, none=5"

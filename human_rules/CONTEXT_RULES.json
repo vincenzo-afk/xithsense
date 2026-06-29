@@ -1,0 +1,50 @@
+[
+  {
+    "id": "RULE-0301",
+    "rule_type": "context",
+    "player_key": null,
+    "condition": { "is_final_or_knockout": true, "batting_position": [1, 2, 3] },
+    "impact_score": 12,
+    "confidence": 0.70,
+    "description": "Top-order batters allocated more overs in knockout matches",
+    "source": "Top-3 avg balls faced in knockouts: 38 vs 28 in league games (Cricsheet IPL 2013-2026)",
+    "match_types": ["T20", "IPL"],
+    "is_active": true
+  },
+  {
+    "id": "RULE-0302",
+    "rule_type": "context",
+    "player_key": null,
+    "condition": { "toss_decision": "bat", "pitch_type": "pace", "match_type": "T20" },
+    "impact_score": -10,
+    "confidence": 0.65,
+    "description": "Batting first on a pace-friendly pitch in T20s is a disadvantage — batting team scores lower",
+    "source": "Bat-first on pace pitches 1st-innings avg: 158 vs field-first avg 171 (Cricsheet 2019-2026)",
+    "match_types": ["T20"],
+    "is_active": true
+  },
+  {
+    "id": "RULE-0303",
+    "rule_type": "context",
+    "player_key": null,
+    "condition": { "rest_days": { "max": 1 }, "match_type": "T20" },
+    "impact_score": -8,
+    "confidence": 0.60,
+    "description": "Players with 0–1 rest days (back-to-back matches) tend to underperform slightly",
+    "source": "Back-to-back T20 FP avg: 92% of normal average (analyst observation, IPL 2022-2026)",
+    "match_types": ["T20", "IPL"],
+    "is_active": true
+  },
+  {
+    "id": "RULE-0304",
+    "rule_type": "context",
+    "player_key": null,
+    "condition": { "home_match": true, "match_type": ["T20", "IPL"] },
+    "impact_score": 8,
+    "confidence": 0.62,
+    "description": "Home-ground advantage gives marginal uplift in T20 performance",
+    "source": "Home vs away FP diff in franchise T20s: +6.2 pts (Cricsheet IPL/BBL/PSL 2015-2026)",
+    "match_types": ["T20", "IPL", "BBL", "PSL"],
+    "is_active": true
+  }
+]
