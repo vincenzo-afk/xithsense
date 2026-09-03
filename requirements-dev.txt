@@ -6,7 +6,7 @@
 -r requirements.txt
 
 # ── Testing ───────────────────────────────────
-pytest==8.2.2
+pytest==9.0.3
 pytest-asyncio==0.23.7
 pytest-cov==5.0.0
 pytest-mock==3.14.0
@@ -18,7 +18,7 @@ freezegun==1.5.0            # time mocking
 
 # ── Code Quality ─────────────────────────────
 ruff==0.4.8
-black==24.4.2
+black==26.3.1
 isort==5.13.2
 mypy==1.10.0
 pre-commit==3.7.1
@@ -38,7 +38,7 @@ plotly==5.22.0
 
 # ── Documentation ────────────────────────────
 mkdocs==1.6.0
-mkdocs-material==9.5.27
+mkdocs-material==9.7.7
 mkdocstrings[python]==0.25.1
 
 # ── Debugging ────────────────────────────────
