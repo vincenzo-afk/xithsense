@@ -157,19 +157,53 @@ async def probable_squad(db: AsyncSession, team: str, gender: str, match_type: s
     return [(pid, round(s * 10)) for pid, s in ranked]
 
 
-async def price_credits(db: AsyncSession, player_ids: List[uuid.UUID]) -> Dict[uuid.UUID, float]:
-    """Dream11-style credits (6.0–10.5) by percentile of each player's last-10 average fantasy points."""
+_ROLE_DIST: Dict[str, List[float]] = {}
+
+
+async def _role_distributions(db: AsyncSession) -> Dict[str, List[float]]:
+    """League-wide distribution of per-player average fantasy points by role (last 3 years, 8+ matches)."""
+    if _ROLE_DIST:
+        return _ROLE_DIST
+    import bisect  # noqa: F401
     P = PlayerMatchPerformance
-    avgs: Dict[uuid.UUID, float] = {}
+    since = date.today() - timedelta(days=3 * 365)
+    rows = (await db.execute(
+        select(Player.primary_role, func.avg(P.fantasy_points))
+        .join(Player, Player.id == P.player_id).where(P.match_date >= since)
+        .group_by(P.player_id, Player.primary_role).having(func.count() >= 8))).all()
+    for role, avg in rows:
+        _ROLE_DIST.setdefault(role or "BAT", []).append(float(avg or 0))
+    for v in _ROLE_DIST.values():
+        v.sort()
+    return _ROLE_DIST
+
+
+ROLE_MAX_CREDITS = {"WK": 10.5, "BAT": 10.5, "AR": 10.5, "BOWL": 10.0}
+
+
+async def price_credits(db: AsyncSession, player_ids: List[uuid.UUID]) -> Dict[uuid.UUID, float]:
+    """Dream11-style credits (6.0–10.5), priced like Dream11 does — relative to the player's role:
+    percentile of his fantasy points (last 30 weighted 60%, last 10 weighted 40%) among all
+    players of that role across the league. Small samples shrink towards a modest prior."""
+    import bisect
+    P = PlayerMatchPerformance
+    dist = await _role_distributions(db)
+    roles = dict((await db.execute(select(Player.id, Player.primary_role).where(Player.id.in_(player_ids)))).all())
+    out: Dict[uuid.UUID, float] = {}
     for pid in player_ids:
-        rows = (await db.execute(select(P.fantasy_points).where(P.player_id == pid)
-                                 .order_by(P.match_date.desc()).limit(10))).scalars().all()
-        avgs[pid] = sum(r or 0 for r in rows) / len(rows) if rows else 15.0
-    ordered = sorted(avgs.values())
-    out = {}
-    for pid, a in avgs.items():
-        pct = ordered.index(a) / max(1, len(ordered) - 1)
-        out[pid] = round((6.0 + pct ** 1.1 * 4.5) * 2) / 2
+        rows = [r or 0 for r in (await db.execute(select(P.fantasy_points).where(P.player_id == pid)
+                                                  .order_by(P.match_date.desc()).limit(30))).scalars().all()]
+        role = roles.get(pid) or "BAT"
+        if rows:
+            recent = rows[:10]
+            value = 0.4 * (sum(recent) / len(recent)) + 0.6 * (sum(rows) / len(rows))
+            value = (value * len(rows) + 20.0 * 3) / (len(rows) + 3)
+        else:
+            value = 15.0
+        ref = dist.get(role) or sorted(x for v in dist.values() for x in v) or [value]
+        pct = bisect.bisect_left(ref, value) / len(ref)
+        top = ROLE_MAX_CREDITS.get(role, 10.5)
+        out[pid] = round((6.0 + min(1.0, pct) ** 1.2 * (top - 6.0)) * 2) / 2
     return out
 
 
