@@ -4,16 +4,18 @@
 # ── Web framework ──────────────────────────────────────────────────────
 fastapi>=0.111.0
 uvicorn[standard]>=0.30.0
+websockets>=12.0
 python-multipart>=0.0.9
 
 # ── Database ───────────────────────────────────────────────────────────
 sqlalchemy[asyncio]>=2.0.30
 asyncpg>=0.29.0
+aiosqlite>=0.20.0              # zero-setup local database
 alembic>=1.13.1
 psycopg2-binary>=2.9.9
 
 # ── Configuration ──────────────────────────────────────────────────────
-pydantic>=2.7.0
+pydantic[email]>=2.7.0
 pydantic-settings>=2.3.0
 
 # ── Auth & Security ─────────────────────────────────────────────────────
@@ -26,16 +28,17 @@ redis[hiredis]>=5.0.4
 celery[redis]>=5.4.0
 
 # ── ML Models ──────────────────────────────────────────────────────────
+# scikit-learn is required; xgboost / lightgbm / catboost are picked up automatically when installed
+scikit-learn>=1.5.0
 xgboost>=2.0.3
 lightgbm>=4.3.0
 catboost>=1.2.5
-scikit-learn>=1.5.0
 numpy>=1.26.4
 pandas>=2.2.2
 joblib>=1.4.2
 
 # ── Optimizer ──────────────────────────────────────────────────────────
-pulp>=2.8.0
+pulp>=2.8.0,<3            # 3.x+ drops the bundled CBC solver
 
 # ── LLM providers (install the one you need) ──────────────────────────
 anthropic>=0.28.0
