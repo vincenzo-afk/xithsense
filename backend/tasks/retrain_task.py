@@ -1,16 +1,21 @@
 """Retrain Celery task."""
+from __future__ import annotations
+
+import asyncio
+
 from backend.worker import celery_app
 
 
-@celery_app.task(name="backend.tasks.retrain_task.retrain_models_task", bind=True)
-def retrain_models_task(self, format: str = "T20", model_ids: list = None):
+@celery_app.task(name="backend.tasks.retrain_task.retrain_models_task", bind=True, max_retries=2)
+def retrain_models_task(self, format: str = "T20", model_ids: list | None = None):
+    from backend.database import AsyncSessionLocal
+    from backend.jobs import job_retrain
+
+    async def run():
+        async with AsyncSessionLocal() as db:
+            return await job_retrain(db, format=format)
+
     try:
-        # Import and run training pipeline
-        import subprocess, sys
-        result = subprocess.run(
-            [sys.executable, "scripts/build_features.py", "--format", format],
-            capture_output=True, text=True
-        )
-        return {"status": "success", "format": format, "model_ids": model_ids, "stdout": result.stdout}
+        return asyncio.run(run())
     except Exception as exc:
-        self.retry(exc=exc, countdown=120, max_retries=2)
+        raise self.retry(exc=exc, countdown=120)
