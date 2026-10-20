@@ -11,6 +11,16 @@ export const TEAMS = {
   'Delhi Capitals': { short: 'DC', color: '#1f5bd1' },
   'Punjab Kings': { short: 'PBKS', color: '#d71920' },
   'Lucknow Super Giants': { short: 'LSG', color: '#00a6e0' },
+  // former franchise names that appear in historical Cricsheet data
+  'Royal Challengers Bangalore': { short: 'RCB', color: '#d1171b' },
+  'Kings XI Punjab': { short: 'KXIP', color: '#d71920' },
+  'Delhi Daredevils': { short: 'DD', color: '#1f5bd1' },
+  'Deccan Chargers': { short: 'DCH', color: '#1d3f8f' },
+  'Rising Pune Supergiant': { short: 'RPS', color: '#6c2b8f' },
+  'Rising Pune Supergiants': { short: 'RPS', color: '#6c2b8f' },
+  'Gujarat Lions': { short: 'GL', color: '#e2621b' },
+  'Pune Warriors': { short: 'PWI', color: '#2f9bd6' },
+  'Kochi Tuskers Kerala': { short: 'KTK', color: '#e47a2e' },
 }
 
 const PALETTE = ['#6366f1', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#a855f7', '#14b8a6', '#f97316']
@@ -69,6 +79,8 @@ export const BOWLER_TYPES = {
   spin_off: 'Off-spin',
   spin_left: 'Left-arm orthodox',
   spin_wrist: 'Wrist spin',
+  pace: 'Pace',
+  spin: 'Spin',
 }
 
 export const MODES = {

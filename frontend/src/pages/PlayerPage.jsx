@@ -12,6 +12,8 @@ import {
   Badge, Card, ChartTip, EmptyState, Meter, PlayerAvatar, RoleBadge, Skeleton, Stat, TeamCrest,
 } from '../components/ui'
 import { BOWLER_TYPES, fmt, fmtDate, pct, team } from '../lib/format'
+
+const DETAILED_TYPES = ['pace_right', 'pace_left', 'spin_off', 'spin_left', 'spin_wrist']
 import './match.css'
 
 const PHASES = [['powerplay', 'Powerplay', 'Overs 1–6'], ['middle', 'Middle', 'Overs 7–15'], ['death', 'Death', 'Overs 16–20']]
@@ -47,20 +49,38 @@ function Matchups({ data, loading }) {
   if (loading) return <Skeleton h={300} />
   const list = data?.matchups || []
   if (!list.length) return <EmptyState icon={Swords} title="Not enough balls faced">Matchups appear after 30+ balls against a bowling type.</EmptyState>
-  const radar = Object.keys(BOWLER_TYPES).map((k) => {
+  const detailed = DETAILED_TYPES.filter((k) => list.some((x) => x.bowler_type === k)).length >= 3
+  const radar = DETAILED_TYPES.map((k) => {
     const m = list.find((x) => x.bowler_type === k)
     return { type: BOWLER_TYPES[k].replace('Left-arm orthodox', 'Left-arm spin'), sr: m?.strike_rate ? Math.round(m.strike_rate) : 0 }
   })
+  // Styles inferred from Cricsheet data are pace / spin only — compare those two directly
+  const bars = list.map((m) => ({
+    type: BOWLER_TYPES[m.bowler_type] || m.bowler_type,
+    sr: Math.round(m.strike_rate || 0),
+    outEvery: m.dismissal_rate ? Math.round(1 / m.dismissal_rate) : 0,
+  }))
   return (
     <div className="grid-2" style={{ alignItems: 'center' }}>
       <ResponsiveContainer width="100%" height={280}>
-        <RadarChart data={radar} outerRadius="72%">
-          <PolarGrid stroke="var(--border)" />
-          <PolarAngleAxis dataKey="type" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
-          <PolarRadiusAxis tick={false} axisLine={false} />
-          <Radar dataKey="sr" name="Strike rate" stroke="var(--primary-light)" fill="var(--primary)" fillOpacity={0.3} strokeWidth={2} />
-          <Tooltip content={<ChartTip />} />
-        </RadarChart>
+        {detailed ? (
+          <RadarChart data={radar} outerRadius="72%">
+            <PolarGrid stroke="var(--border)" />
+            <PolarAngleAxis dataKey="type" tick={{ fill: 'var(--text-secondary)', fontSize: 11 }} />
+            <PolarRadiusAxis tick={false} axisLine={false} />
+            <Radar dataKey="sr" name="Strike rate" stroke="var(--primary-light)" fill="var(--primary)" fillOpacity={0.3} strokeWidth={2} />
+            <Tooltip content={<ChartTip />} />
+          </RadarChart>
+        ) : (
+          <BarChart data={bars} margin={{ top: 10, right: 10, left: -10, bottom: 0 }} barGap={6}>
+            <CartesianGrid vertical={false} />
+            <XAxis dataKey="type" tickLine={false} axisLine={false} />
+            <YAxis tickLine={false} axisLine={false} />
+            <Tooltip content={<ChartTip />} cursor={{ fill: 'var(--bg-hover)' }} />
+            <Bar dataKey="sr" name="Strike rate" fill="var(--primary)" radius={[6, 6, 0, 0]} maxBarSize={56} />
+            <Bar dataKey="outEvery" name="Balls per dismissal" fill="var(--wk)" radius={[6, 6, 0, 0]} maxBarSize={56} />
+          </BarChart>
+        )}
       </ResponsiveContainer>
       <div className="table-wrap">
         <table className="table">
