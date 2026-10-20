@@ -1,0 +1,593 @@
+{
+ "id": "7ef2a3f0-c9f5-402a-9417-078e9d583d6e",
+ "name": "India Women vs Zimbabwe Women, 3rd T20I, Zimbabwe Women tour of India, 2026",
+ "matchType": "t20",
+ "status": "Zimbabwe Women need 144 runs in 46 balls",
+ "teams": [
+  "India Women",
+  "Zimbabwe Women"
+ ],
+ "score": [
+  {
+   "r": 216,
+   "w": 7,
+   "o": 20,
+   "inning": "india women Inning 1"
+  },
+  {
+   "r": 73,
+   "w": 2,
+   "o": 12.2,
+   "inning": "India Women,Zimbabwe Women Inning 1"
+  }
+ ],
+ "tossWinner": "india women",
+ "tossChoice": "bat",
+ "scorecard": [
+  {
+   "batting": [
+    {
+     "batsman": {
+      "id": "faa616c2-68c3-4762-b8c3-943f01bda6de",
+      "name": "Shafali Verma",
+      "cricbuzz_id": "14825"
+     },
+     "dismissal": "catch",
+     "bowler": {
+      "id": "9bb347e4-5c79-49e7-9dd2-8a0fa87e7043",
+      "name": "Beloved Biza",
+      "cricbuzz_id": "54987"
+     },
+     "catcher": {
+      "id": "32d5d349-6f22-4d7d-a23f-3f241508fb9b",
+      "name": "Tendai Makusha",
+      "cricbuzz_id": "1432953"
+     },
+     "dismissal-text": "c Tendai Makusha b Beloved Biza",
+     "r": 69,
+     "b": 37,
+     "4s": 6,
+     "6s": 5,
+     "sr": 186.49
+    },
+    {
+     "batsman": {
+      "id": "1d79f2b2-e753-4e7e-86b0-ffe9366c16ae",
+      "name": "Anushka Sharma",
+      "cricbuzz_id": "22286"
+     },
+     "dismissal": "catch",
+     "bowler": {
+      "id": "fb2dace7-3554-4369-90b1-fd433c9569cd",
+      "name": "Nomvelo Sibanda",
+      "cricbuzz_id": "12756"
+     },
+     "catcher": {
+      "id": "e77d7533-7b84-4771-8585-4255e44cefdd",
+      "name": "Nyasha Gwanzura",
+      "cricbuzz_id": "20112"
+     },
+     "dismissal-text": "c Nyasha Gwanzura b Nomvelo Sibanda",
+     "r": 28,
+     "b": 20,
+     "4s": 4,
+     "6s": 1,
+     "sr": 140
+    },
+    {
+     "batsman": {
+      "id": "30ae6454-d50a-456f-a5c0-7e23b3085c31",
+      "name": "Niki Prasad",
+      "cricbuzz_id": "40773"
+     },
+     "dismissal": "catch",
+     "bowler": {
+      "id": "e77d7533-7b84-4771-8585-4255e44cefdd",
+      "name": "Nyasha Gwanzura",
+      "cricbuzz_id": "20112"
+     },
+     "catcher": {
+      "id": "9417b26e-57c0-4d64-ad55-35d1f67d4b9e",
+      "name": "Loryn Phiri",
+      "cricbuzz_id": "19107"
+     },
+     "dismissal-text": "c Loryn Phiri b Nyasha Gwanzura",
+     "r": 9,
+     "b": 12,
+     "4s": 1,
+     "6s": 0,
+     "sr": 75
+    },
+    {
+     "batsman": {
+      "id": "1c5267ae-2021-44b0-b368-ff9365e05893",
+      "name": "Harmanpreet Kaur",
+      "cricbuzz_id": "9082"
+     },
+     "dismissal-text": "not out",
+     "r": 91,
+     "b": 41,
+     "4s": 10,
+     "6s": 5,
+     "sr": 221.95
+    },
+    {
+     "batsman": {
+      "id": "33efec43-6443-486a-81a9-700e7a94ebd6",
+      "name": "Richa Ghosh",
+      "cricbuzz_id": "16208"
+     },
+     "dismissal": "catch",
+     "bowler": {
+      "id": "9bb347e4-5c79-49e7-9dd2-8a0fa87e7043",
+      "name": "Beloved Biza",
+      "cricbuzz_id": "54987"
+     },
+     "catcher": {
+      "id": "e77d7533-7b84-4771-8585-4255e44cefdd",
+      "name": "Nyasha Gwanzura",
+      "cricbuzz_id": "20112"
+     },
+     "dismissal-text": "c Nyasha Gwanzura b Beloved Biza",
+     "r": 1,
+     "b": 3,
+     "4s": 0,
+     "6s": 0,
+     "sr": 33.33
+    },
+    {
+     "batsman": {
+      "id": "e6d62ec5-d08d-40e0-ad7e-7172a5427861",
+      "name": "Deepti Sharma",
+      "cricbuzz_id": "11098"
+     },
+     "dismissal": "catch",
+     "bowler": {
+      "id": "32d5d349-6f22-4d7d-a23f-3f241508fb9b",
+      "name": "Tendai Makusha",
+      "cricbuzz_id": "1432953"
+     },
+     "catcher": {
+      "id": "92f4a926-78d5-4cc1-a9b9-3cd2474193d0",
+      "name": "Modester Mupachikwa",
+      "cricbuzz_id": "12283"
+     },
+     "dismissal-text": "c Mupachikwa b Tendai Makusha",
+     "r": 0,
+     "b": 3,
+     "4s": 0,
+     "6s": 0,
+     "sr": 0
+    },
+    {
+     "batsman": {
+      "id": "16b5dd07-88dd-42bd-9830-eddb83b6d0c7",
+      "name": "Arundhati Reddy",
+      "cricbuzz_id": "13661"
+     },
+     "dismissal": "catch",
+     "bowler": {
+      "id": "9bb347e4-5c79-49e7-9dd2-8a0fa87e7043",
+      "name": "Beloved Biza",
+      "cricbuzz_id": "54987"
+     },
+     "catcher": {
+      "id": "2a37c1af-1018-4451-b274-f84f13f8edc0",
+      "name": "Kudzai Chigora",
+      "cricbuzz_id": "38456"
+     },
+     "dismissal-text": "c Kudzai Chigora b Beloved Biza",
+     "r": 4,
+     "b": 2,
+     "4s": 1,
+     "6s": 0,
+     "sr": 200
+    },
+    {
+     "batsman": {
+      "id": "21e78d6f-cfb6-433b-9695-8c1fe17043cb",
+      "name": "Prema Rawat",
+      "cricbuzz_id": "53030"
+     },
+     "dismissal": "runout",
+     "bowler": {
+      "id": "fb2dace7-3554-4369-90b1-fd433c9569cd",
+      "name": "Nomvelo Sibanda",
+      "cricbuzz_id": "12756"
+     },
+     "catcher": {
+      "id": "32d5d349-6f22-4d7d-a23f-3f241508fb9b",
+      "name": "Tendai Makusha",
+      "cricbuzz_id": "1432953"
+     },
+     "dismissal-text": "run out (Nomvelo Sibanda/Tendai Makusha)",
+     "r": 4,
+     "b": 2,
+     "4s": 1,
+     "6s": 0,
+     "sr": 200
+    },
+    {
+     "batsman": {
+      "id": "805e3d4b-58f6-4b8a-bbb4-70bfe878a7e5",
+      "name": "Kranti Gaud",
+      "cricbuzz_id": "1448841"
+     },
+     "dismissal-text": "not out",
+     "r": 0,
+     "b": 0,
+     "4s": 0,
+     "6s": 0,
+     "sr": 0
+    }
+   ],
+   "bowling": [
+    {
+     "bowler": {
+      "id": "fb2dace7-3554-4369-90b1-fd433c9569cd",
+      "name": "Nomvelo Sibanda",
+      "cricbuzz_id": "12756"
+     },
+     "o": 4,
+     "m": 0,
+     "r": 33,
+     "w": 1,
+     "nb": 0,
+     "wd": 2,
+     "eco": 8.2
+    },
+    {
+     "bowler": {
+      "id": "32d5d349-6f22-4d7d-a23f-3f241508fb9b",
+      "name": "Tendai Makusha",
+      "cricbuzz_id": "1432953"
+     },
+     "o": 4,
+     "m": 0,
+     "r": 45,
+     "w": 1,
+     "nb": 0,
+     "wd": 2,
+     "eco": 11.2
+    },
+    {
+     "bowler": {
+      "id": "2a37c1af-1018-4451-b274-f84f13f8edc0",
+      "name": "Kudzai Chigora",
+      "cricbuzz_id": "38456"
+     },
+     "o": 3,
+     "m": 0,
+     "r": 40,
+     "w": 0,
+     "nb": 0,
+     "wd": 6,
+     "eco": 13.3
+    },
+    {
+     "bowler": {
+      "id": "9417b26e-57c0-4d64-ad55-35d1f67d4b9e",
+      "name": "Loryn Phiri",
+      "cricbuzz_id": "19107"
+     },
+     "o": 3,
+     "m": 0,
+     "r": 33,
+     "w": 0,
+     "nb": 0,
+     "wd": 0,
+     "eco": 11
+    },
+    {
+     "bowler": {
+      "id": "e77d7533-7b84-4771-8585-4255e44cefdd",
+      "name": "Nyasha Gwanzura",
+      "cricbuzz_id": "20112"
+     },
+     "o": 2,
+     "m": 0,
+     "r": 15,
+     "w": 1,
+     "nb": 0,
+     "wd": 0,
+     "eco": 7.5
+    },
+    {
+     "bowler": {
+      "id": "9bb347e4-5c79-49e7-9dd2-8a0fa87e7043",
+      "name": "Beloved Biza",
+      "cricbuzz_id": "54987"
+     },
+     "o": 4,
+     "m": 0,
+     "r": 50,
+     "w": 3,
+     "nb": 0,
+     "wd": 0,
+     "eco": 12.5
+    }
+   ],
+   "catching": [
+    {
+     "catcher": {
+      "id": "32d5d349-6f22-4d7d-a23f-3f241508fb9b",
+      "name": "Tendai Makusha",
+      "cricbuzz_id": "1432953"
+     },
+     "stumped": 0,
+     "runout": 1,
+     "catch": 1,
+     "cb": 0,
+     "lbw": 0,
+     "bowled": 0
+    },
+    {
+     "catcher": {
+      "id": "e77d7533-7b84-4771-8585-4255e44cefdd",
+      "name": "Nyasha Gwanzura",
+      "cricbuzz_id": "20112"
+     },
+     "stumped": 0,
+     "runout": 0,
+     "catch": 2,
+     "cb": 0,
+     "lbw": 0,
+     "bowled": 0
+    },
+    {
+     "catcher": {
+      "id": "9417b26e-57c0-4d64-ad55-35d1f67d4b9e",
+      "name": "Loryn Phiri",
+      "cricbuzz_id": "19107"
+     },
+     "stumped": 0,
+     "runout": 0,
+     "catch": 1,
+     "cb": 0,
+     "lbw": 0,
+     "bowled": 0
+    },
+    {
+     "catcher": {
+      "id": "92f4a926-78d5-4cc1-a9b9-3cd2474193d0",
+      "name": "Modester Mupachikwa",
+      "cricbuzz_id": "12283"
+     },
+     "stumped": 0,
+     "runout": 0,
+     "catch": 1,
+     "cb": 0,
+     "lbw": 0,
+     "bowled": 0
+    },
+    {
+     "catcher": {
+      "id": "2a37c1af-1018-4451-b274-f84f13f8edc0",
+      "name": "Kudzai Chigora",
+      "cricbuzz_id": "38456"
+     },
+     "stumped": 0,
+     "runout": 0,
+     "catch": 1,
+     "cb": 0,
+     "lbw": 0,
+     "bowled": 0
+    }
+   ],
+   "extras": {},
+   "totals": {},
+   "inning": "india women Inning 1"
+  },
+  {
+   "batting": [
+    {
+     "batsman": {
+      "id": "478f097a-4e5a-41c3-a01b-123527f2c108",
+      "name": "Kelis Ndhlovu",
+      "cricbuzz_id": "19097"
+     },
+     "dismissal": "catch",
+     "bowler": {
+      "id": "805e3d4b-58f6-4b8a-bbb4-70bfe878a7e5",
+      "name": "Kranti Gaud",
+      "cricbuzz_id": "1448841"
+     },
+     "catcher": {
+      "id": "30ae6454-d50a-456f-a5c0-7e23b3085c31",
+      "name": "Niki Prasad",
+      "cricbuzz_id": "40773"
+     },
+     "dismissal-text": "c Niki Prasad b Kranti Gaud",
+     "r": 0,
+     "b": 1,
+     "4s": 0,
+     "6s": 0,
+     "sr": 0
+    },
+    {
+     "batsman": {
+      "id": "ff8d7d75-a931-4140-b27e-fa226edb2f2f",
+      "name": "Sharne Mayers",
+      "cricbuzz_id": "12278"
+     },
+     "dismissal-text": "batting",
+     "r": 42,
+     "b": 41,
+     "4s": 3,
+     "6s": 2,
+     "sr": 102.44
+    },
+    {
+     "batsman": {
+      "id": "92f4a926-78d5-4cc1-a9b9-3cd2474193d0",
+      "name": "Modester Mupachikwa",
+      "cricbuzz_id": "12283"
+     },
+     "dismissal": "catch",
+     "bowler": {
+      "id": "0b5f121d-1340-4033-a37b-d1bf0e3a2355",
+      "name": "Nandani Sharma",
+      "cricbuzz_id": "1448901"
+     },
+     "catcher": {
+      "id": "33efec43-6443-486a-81a9-700e7a94ebd6",
+      "name": "Richa Ghosh",
+      "cricbuzz_id": "16208"
+     },
+     "dismissal-text": "c Richa Ghosh b Nandani Sharma",
+     "r": 1,
+     "b": 4,
+     "4s": 0,
+     "6s": 0,
+     "sr": 25
+    },
+    {
+     "batsman": {
+      "id": "9bb347e4-5c79-49e7-9dd2-8a0fa87e7043",
+      "name": "Beloved Biza",
+      "cricbuzz_id": "54987"
+     },
+     "dismissal-text": "batting",
+     "r": 23,
+     "b": 28,
+     "4s": 2,
+     "6s": 0,
+     "sr": 82.14
+    }
+   ],
+   "bowling": [
+    {
+     "bowler": {
+      "id": "805e3d4b-58f6-4b8a-bbb4-70bfe878a7e5",
+      "name": "Kranti Gaud",
+      "cricbuzz_id": "1448841"
+     },
+     "o": 3,
+     "m": 0,
+     "r": 19,
+     "w": 1,
+     "nb": 0,
+     "wd": 6,
+     "eco": 6.3
+    },
+    {
+     "bowler": {
+      "id": "0b5f121d-1340-4033-a37b-d1bf0e3a2355",
+      "name": "Nandani Sharma",
+      "cricbuzz_id": "1448901"
+     },
+     "o": 2,
+     "m": 0,
+     "r": 13,
+     "w": 1,
+     "nb": 0,
+     "wd": 0,
+     "eco": 6.5
+    },
+    {
+     "bowler": {
+      "id": "faa616c2-68c3-4762-b8c3-943f01bda6de",
+      "name": "Shafali Verma",
+      "cricbuzz_id": "14825"
+     },
+     "o": 1,
+     "m": 0,
+     "r": 2,
+     "w": 0,
+     "nb": 0,
+     "wd": 0,
+     "eco": 2
+    },
+    {
+     "bowler": {
+      "id": "16b5dd07-88dd-42bd-9830-eddb83b6d0c7",
+      "name": "Arundhati Reddy",
+      "cricbuzz_id": "13661"
+     },
+     "o": 2,
+     "m": 0,
+     "r": 15,
+     "w": 0,
+     "nb": 0,
+     "wd": 1,
+     "eco": 7.5
+    },
+    {
+     "bowler": {
+      "id": "21e78d6f-cfb6-433b-9695-8c1fe17043cb",
+      "name": "Prema Rawat",
+      "cricbuzz_id": "53030"
+     },
+     "o": 2,
+     "m": 0,
+     "r": 18,
+     "w": 0,
+     "nb": 0,
+     "wd": 0,
+     "eco": 9
+    },
+    {
+     "bowler": {
+      "id": "e6d62ec5-d08d-40e0-ad7e-7172a5427861",
+      "name": "Deepti Sharma",
+      "cricbuzz_id": "11098"
+     },
+     "o": 2,
+     "m": 0,
+     "r": 6,
+     "w": 0,
+     "nb": 0,
+     "wd": 0,
+     "eco": 3
+    },
+    {
+     "bowler": {
+      "id": "30ae6454-d50a-456f-a5c0-7e23b3085c31",
+      "name": "Niki Prasad",
+      "cricbuzz_id": "40773"
+     },
+     "o": 0.2,
+     "m": 0,
+     "r": 0,
+     "w": 0,
+     "nb": 0,
+     "wd": 0,
+     "eco": 0
+    }
+   ],
+   "catching": [
+    {
+     "catcher": {
+      "id": "30ae6454-d50a-456f-a5c0-7e23b3085c31",
+      "name": "Niki Prasad",
+      "cricbuzz_id": "40773"
+     },
+     "stumped": 0,
+     "runout": 0,
+     "catch": 1,
+     "cb": 0,
+     "lbw": 0,
+     "bowled": 0
+    },
+    {
+     "catcher": {
+      "id": "33efec43-6443-486a-81a9-700e7a94ebd6",
+      "name": "Richa Ghosh",
+      "cricbuzz_id": "16208"
+     },
+     "stumped": 0,
+     "runout": 0,
+     "catch": 1,
+     "cb": 0,
+     "lbw": 0,
+     "bowled": 0
+    }
+   ],
+   "extras": {},
+   "totals": {},
+   "inning": "India Women,Zimbabwe Women Inning 1"
+  }
+ ],
+ "matchStarted": true,
+ "matchEnded": false
+}
