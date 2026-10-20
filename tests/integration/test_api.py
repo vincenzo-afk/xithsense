@@ -243,3 +243,21 @@ async def test_cricapi_quota_guard_and_cache(monkeypatch):
         with pytest.raises(cricapi.QuotaExceeded):                                           # 10-hit call, 14 left, reserve 10
             await cricapi.call(db, "match_scorecard", max_age=timedelta(0), allow_stale=False, id="abc")
         assert calls["n"] == 1
+
+
+async def test_current_team_uses_latest_line_up(client, tokens):
+    r = await client.get("/api/v1/players/search", params={"q": "kohli"}, headers=tokens["free"])
+    kohli = next(p for p in r.json()["players"] if p["full_name"] == "V Kohli")
+    assert kohli["current_team"] == "Royal Challengers Bengaluru"      # not the pre-2024 'Bangalore'
+
+
+async def test_credits_are_spread_and_stars_are_priced_up(client, tokens, match_id):
+    detail = (await client.get(f"/api/v1/matches/{match_id}", headers=tokens["free"])).json()
+    players = [p for squad in detail["squads"].values() for p in squad]
+    credits = {p["full_name"]: p["credits"] for p in players}
+    assert min(credits.values()) >= 6.0 and max(credits.values()) <= 10.5
+    assert max(credits.values()) - min(credits.values()) >= 3.0
+    # Role-relative pricing: the pool's best bowler is priced like a star even though bowlers
+    # score fewer canonical fantasy points than top-order batters
+    bowlers = [p["credits"] for p in players if p["role"] == "BOWL"]
+    assert bowlers and max(bowlers) >= 9.0
