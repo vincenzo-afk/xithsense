@@ -21,13 +21,13 @@ class Settings(BaseSettings):
 
     # ── Runtime ──────────────────────────────────
     ENV: str = "development"
-    DEBUG: bool = True
+    DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
     SECRET_KEY: str = "change-me-to-a-32-char-min-random-string-xxxxxxxx"
     XITHSENSE_API_KEY: str = "xs-dev-changeme"
 
     # ── Database ─────────────────────────────────
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:password@localhost:5432/xithsense"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./xithsense.db"   # set a postgresql+asyncpg URL in production
     SUPABASE_URL: Optional[str] = None
     SUPABASE_SERVICE_KEY: Optional[str] = None
     SUPABASE_ANON_KEY: Optional[str] = None
@@ -50,7 +50,8 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
     GOOGLE_API_KEY: Optional[str] = None
-    LLM_MODEL: str = "claude-sonnet-4-6"
+    LLM_MODEL: str = "claude-sonnet-5-5"
+    LLM_TIMEOUT_SECONDS: float = 5.0
     LLM_MAX_TOKENS: int = 1024
     LLM_TEMPERATURE: float = 0.3
 
@@ -106,6 +107,22 @@ class Settings(BaseSettings):
     RATE_LIMIT_PREMIUM_RPM: int = 300
     RATE_LIMIT_ADMIN_RPM: int = 1000
 
+    # ── Live data (cricketdata.org / CricAPI) ─────
+    CRICKETDATA_API_KEY: Optional[str] = None
+    CRICKETDATA_BASE_URL: str = "https://api.cricapi.com/v1"
+    CRICKETDATA_DAILY_LIMIT: int = 100          # plan quota (hits/day)
+    CRICKETDATA_RESERVE: int = 10               # never spend the last N hits
+    LIVE_POLL_SECONDS: int = 240                # score refresh while someone is watching (1 hit)
+    LIVE_SCORECARD_MINUTES: int = 45            # full scorecard refresh for live fantasy points (10 hits)
+    FIXTURE_SYNC_HOURS: int = 12
+    FIXTURE_DAYS_AHEAD: int = 10
+    TRACKED_SERIES_MAX: int = 8
+
+    # ── Demo / dev ───────────────────────────────
+    DEMO_MODE: bool = True                      # simulated checkout when Razorpay keys are absent (never in production)
+    RATE_LIMIT_ENABLED: bool = True
+    LLM_TIMEOUT_SECONDS: float = 5.0
+
     # ── CORS ─────────────────────────────────────
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:5173,https://app.xithsense.com"
 
@@ -121,6 +138,10 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.ENV == "production"
+
+    @property
+    def is_sqlite(self) -> bool:
+        return self.DATABASE_URL.startswith("sqlite")
 
     @property
     def sync_database_url(self) -> str:
