@@ -1,76 +1,120 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { register } from '../api/client'
+import { useQueryClient } from '@tanstack/react-query'
+import { ArrowRight, Check, Eye, EyeOff, KeyRound, Mail, User, X } from 'lucide-react'
+import { apiError, register } from '../api/client'
 import { useAuthStore } from '../store/authStore'
+import { toast } from '../store/uiStore'
+import { Logo } from '../components/Layout'
+import { Alert, Button } from '../components/ui'
+import AuthArt from './AuthArt'
+import './public.css'
+
+const RULES = [
+  { key: 'len', label: 'At least 8 characters', test: (p) => p.length >= 8 },
+  { key: 'upper', label: 'One uppercase letter', test: (p) => /[A-Z]/.test(p) },
+  { key: 'digit', label: 'One number', test: (p) => /\d/.test(p) },
+]
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const qc = useQueryClient()
   const { setAuth } = useAuthStore()
-  const [form, setForm] = useState({ email: '', password: '', full_name: '' })
+  const [form, setForm] = useState({ full_name: '', email: '', password: '' })
+  const [touched, setTouched] = useState({})
+  const [show, setShow] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e) => {
+  const passed = useMemo(() => RULES.map((r) => r.test(form.password)), [form.password])
+  const score = passed.filter(Boolean).length
+  const errors = {
+    email: !form.email ? 'Email is required' : !EMAIL_RE.test(form.email) ? 'Enter a valid email address' : '',
+    password: score < RULES.length ? 'Password does not meet the requirements' : '',
+  }
+  const valid = !errors.email && !errors.password
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
+  const blur = (k) => () => setTouched((t) => ({ ...t, [k]: true }))
+
+  const onSubmit = async (e) => {
     e.preventDefault()
+    setTouched({ email: true, password: true })
+    if (!valid) return
     setLoading(true)
     setError('')
     try {
-      const data = await register(form)
+      const data = await register({ ...form, full_name: form.full_name.trim() || undefined })
+      qc.clear()
       setAuth(data.user, data.access_token, data.refresh_token)
-      navigate('/matches')
+      toast.success('Welcome to XithSense', 'Your free account is ready. Pick a match to build your first XI.')
+      navigate('/matches', { replace: true })
     } catch (err) {
-      setError(err.response?.data?.detail?.message || 'Registration failed. Please try again.')
-    } finally {
+      const e2 = apiError(err)
+      setError(e2.code === 'EMAIL_TAKEN' ? 'An account with this email already exists — try signing in.' : e2.message)
       setLoading(false)
     }
   }
 
-  return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--sp-6)', background: 'var(--bg-base)', position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 30%, rgba(99,102,241,0.15) 0%, transparent 60%)', pointerEvents: 'none' }} />
-      <div style={{ width: '100%', maxWidth: 420, position: 'relative' }}>
-        <div className="text-center mb-8">
-          <Link to="/" className="nav-logo" style={{ justifyContent: 'center', marginBottom: 'var(--sp-4)' }}>
-            <span style={{ fontSize: 40 }}>🏏</span>
-            <span className="gradient-text" style={{ fontSize: 'var(--text-2xl)' }}>XithSense</span>
-          </Link>
-          <h1 style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--sp-2)' }}>Create your account</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>Start winning at fantasy cricket for free</p>
-        </div>
+  const strengthColor = ['var(--danger)', 'var(--danger)', 'var(--warning)', 'var(--success)'][score]
 
-        <div className="card">
-          {error && (
-            <div style={{ background: 'var(--color-danger-bg)', border: '1px solid var(--color-danger)', borderRadius: 'var(--radius-md)', padding: 'var(--sp-3)', marginBottom: 'var(--sp-4)', color: 'var(--color-danger)', fontSize: 'var(--text-sm)' }}>
-              ⚠️ {error}
+  return (
+    <div className="auth">
+      <div className="auth-form">
+        <div className="fade-in">
+          <Link to="/" className="show-mobile mb-24" style={{ display: 'inline-block' }}><Logo /></Link>
+          <h1>Create your account</h1>
+          <p className="mt-8">Free forever. Upgrade only if you want every strategy.</p>
+
+          {error && <div className="mt-24"><Alert tone="danger" action={error.includes('signing in') ? <Link to="/login" className="bold small">Sign in</Link> : null}>{error}</Alert></div>}
+
+          <form onSubmit={onSubmit} className="col gap-16 mt-24" noValidate>
+            <div className="field">
+              <label className="label" htmlFor="name">Full name <span className="muted">(optional)</span></label>
+              <div className="input-wrap">
+                <User size={16} />
+                <input id="name" className="input" autoComplete="name" placeholder="Rahul Sharma" maxLength={200} value={form.full_name} onChange={set('full_name')} />
+              </div>
             </div>
-          )}
-          <form onSubmit={handleSubmit}>
-            <div className="form-group mb-4">
-              <label className="label">Full Name</label>
-              <input className="input" type="text" placeholder="Rahul Sharma" value={form.full_name}
-                onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} />
+            <div className="field">
+              <label className="label" htmlFor="email">Email</label>
+              <div className="input-wrap">
+                <Mail size={16} />
+                <input id="email" className="input" type="email" autoComplete="email" placeholder="you@example.com" value={form.email}
+                  onChange={set('email')} onBlur={blur('email')} aria-invalid={touched.email && !!errors.email}
+                  style={touched.email && errors.email ? { borderColor: 'var(--danger)' } : undefined} />
+              </div>
+              {touched.email && errors.email && <span className="field-error">{errors.email}</span>}
             </div>
-            <div className="form-group mb-4">
-              <label className="label">Email</label>
-              <input className="input" type="email" placeholder="you@example.com" value={form.email}
-                onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required />
+            <div className="field">
+              <label className="label" htmlFor="password">Password</label>
+              <div className="input-wrap">
+                <KeyRound size={16} />
+                <input id="password" className="input" type={show ? 'text' : 'password'} autoComplete="new-password" placeholder="Create a password"
+                  value={form.password} onChange={set('password')} onBlur={blur('password')} style={{ paddingRight: 46, ...(touched.password && errors.password ? { borderColor: 'var(--danger)' } : {}) }} />
+                <button type="button" className="input-action btn btn-ghost btn-icon btn-sm" onClick={() => setShow((s) => !s)} aria-label={show ? 'Hide password' : 'Show password'}>
+                  {show ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+              <div className="pw-strength" aria-hidden>
+                {RULES.map((_, i) => <span key={i} style={{ background: i < score ? strengthColor : undefined }} />)}
+              </div>
+              <ul className="pw-rules">
+                {RULES.map((r, i) => (
+                  <li key={r.key} className={passed[i] ? 'ok' : ''}>{passed[i] ? <Check size={13} /> : <X size={13} />}{r.label}</li>
+                ))}
+              </ul>
             </div>
-            <div className="form-group mb-6">
-              <label className="label">Password</label>
-              <input className="input" type="password" placeholder="Min 8 chars, 1 uppercase, 1 digit" value={form.password}
-                onChange={e => setForm(f => ({ ...f, password: e.target.value }))} required />
-            </div>
-            <button type="submit" className="btn btn-primary w-full btn-lg glow-primary" disabled={loading}>
-              {loading ? '⏳ Creating account...' : '🚀 Create Free Account'}
-            </button>
+            <Button type="submit" size="lg" block loading={loading}>Create free account <ArrowRight size={16} /></Button>
+            <p className="xs muted text-center">By creating an account you agree to play responsibly. Projections are estimates, not guarantees.</p>
           </form>
-          <div className="divider" />
-          <p style={{ textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
-            Already have an account?{' '}
-            <Link to="/login" style={{ color: 'var(--color-primary-light)', fontWeight: 600 }}>Sign in</Link>
+
+          <p className="small text-center mt-24">
+            Already have an account? <Link to="/login" className="text-primary bold">Sign in</Link>
           </p>
         </div>
       </div>
+      <AuthArt quote="Four strategies, one match. Build the XI that fits your contest in seconds." />
     </div>
   )
 }
