@@ -53,6 +53,20 @@ async def infer_roles(db: AsyncSession) -> int:
     return n
 
 
+async def refresh_current_teams(db: AsyncSession) -> int:
+    """current_team = the side a player represented in his most recent match (franchise renames,
+    transfers and international/club switches all resolve to the latest real line-up)."""
+    P = PlayerMatchPerformance
+    latest = (select(P.player_id, func.max(P.match_date).label("d")).group_by(P.player_id)).subquery()
+    rows = (await db.execute(select(P.player_id, P.team).join(
+        latest, (latest.c.player_id == P.player_id) & (latest.c.d == P.match_date)))).all()
+    teams = {pid: team for pid, team in rows}
+    for pid, team in teams.items():
+        await db.execute(update(Player).where(Player.id == pid).values(current_team=team))
+    await db.commit()
+    return len(teams)
+
+
 async def rebuild_rolling_features(db: AsyncSession) -> int:
     P = PlayerMatchPerformance
     rows = (await db.execute(select(
@@ -216,12 +230,13 @@ async def run_pipeline(db: AsyncSession) -> dict:
     from feature_engineering.bowling_style import infer_bowling_styles
     roles = await infer_roles(db)
     styles = await infer_bowling_styles(db)
+    teams = await refresh_current_teams(db)
     rolling = await rebuild_rolling_features(db)
     venues = await rebuild_venue_stats(db)
     matchups = await rebuild_matchup_stats(db)
     from feature_engineering.builder import _load_frames_sql, save_frames_cache
     save_frames_cache(await _load_frames_sql(db))
-    report = {"roles_inferred": roles, "bowling_styles": styles, "rolling_features": rolling, "venue_stats": venues,
+    report = {"roles_inferred": roles, "current_teams": teams, "bowling_styles": styles, "rolling_features": rolling, "venue_stats": venues,
               "matchup_stats": matchups, "built_at": date.today().isoformat()}
     logger.info("Feature pipeline: %s", report)
     return report
