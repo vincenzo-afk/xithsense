@@ -1,6 +1,11 @@
 """
-Cricsheet data ingestion script.
-Usage: python scripts/ingest_cricsheet.py --source data/raw/all_json.zip
+Cricsheet data ingestion: parse ball-by-ball JSON → matches, innings, deliveries,
+players, performances (with fantasy points), then rebuild the feature store.
+
+Usage:
+    python -m scripts.ingest_cricsheet --source data/raw/all_json.zip
+    python -m scripts.ingest_cricsheet --source data/raw/all_json/ --full   # re-ingest existing matches
+Download: https://cricsheet.org/downloads/all_json.zip
 """
 from __future__ import annotations
 
@@ -8,79 +13,39 @@ import argparse
 import asyncio
 import json
 import logging
-import zipfile
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger("ingest")
 
 
-async def ingest(source: str, incremental: bool = True) -> None:
+async def ingest(source: str, incremental: bool = True, features: bool = True) -> dict:
     from backend.database import AsyncSessionLocal, create_tables
-    from backend.models import Match
-    from ingestion.parser import parse_match
-    from sqlalchemy import select
+    from feature_engineering.pipeline import run_pipeline
+    from ingestion.loader import ingest_files, iter_source_files
 
     await create_tables()
-
-    source_path = Path(source)
-    json_files = []
-
-    if source_path.suffix == ".zip":
-        logger.info(f"Extracting {source_path}...")
-        extract_dir = source_path.parent / "all_json"
-        extract_dir.mkdir(exist_ok=True)
-        with zipfile.ZipFile(source_path) as zf:
-            zf.extractall(extract_dir)
-        json_files = list(extract_dir.glob("**/*.json"))
-    elif source_path.is_dir():
-        json_files = list(source_path.glob("**/*.json"))
-    else:
-        logger.error(f"Source not found: {source}")
-        return
-
-    logger.info(f"Found {len(json_files)} JSON files")
-    ingested = 0
-    errors = 0
-
+    files, people = iter_source_files(source)
+    logger.info("Found %d match files (%d people records)", len(files), len(people))
     async with AsyncSessionLocal() as db:
-        for json_file in json_files:
-            match_id = json_file.stem
-            try:
-                if incremental:
-                    result = await db.execute(select(Match).where(Match.id == match_id))
-                    if result.scalar_one_or_none():
-                        continue
-
-                with json_file.open("r", encoding="utf-8") as f:
-                    data = json.load(f)
-
-                match_record, innings_records, delivery_records = parse_match(data)
-                match_record["id"] = match_id
-
-                from backend.models import Match as MatchModel
-                match_obj = MatchModel(**match_record)
-                await db.merge(match_obj)
-                await db.commit()
-                ingested += 1
-
-                if ingested % 1000 == 0:
-                    logger.info(f"Progress: {ingested} matches ingested")
-
-            except Exception as e:
-                errors += 1
-                logger.error(f"Error ingesting {json_file.name}: {e}")
-                await db.rollback()
-
-    logger.info(f"Ingestion complete. {ingested} matches ingested, {errors} errors.")
+        report = await ingest_files(db, files, people, incremental=incremental)
+        logger.info("Ingestion: %s", report.as_dict())
+        out = {"ingest": report.as_dict()}
+        if features:
+            out["features"] = await run_pipeline(db)
+    return out
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Ingest Cricsheet data")
-    parser.add_argument("--source", default="data/raw/all_json.zip")
-    parser.add_argument("--incremental", action="store_true", default=True)
-    args = parser.parse_args()
-    asyncio.run(ingest(args.source, args.incremental))
+    ap = argparse.ArgumentParser(description="Ingest Cricsheet data")
+    ap.add_argument("--source", default="data/raw/all_json.zip")
+    ap.add_argument("--full", action="store_true", help="re-ingest matches that already exist")
+    ap.add_argument("--skip-features", action="store_true")
+    a = ap.parse_args()
+    print(json.dumps(asyncio.run(ingest(a.source, not a.full, not a.skip_features)), indent=2))
 
 
 if __name__ == "__main__":
