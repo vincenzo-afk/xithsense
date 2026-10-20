@@ -34,6 +34,7 @@ function ProductPreview() {
           </div>
           <Badge tone="primary"><Shield size={11} />Safe XI</Badge>
         </div>
+        <div className="xs muted" style={{ padding: '6px 14px 0', textAlign: 'right' }}>Illustrative preview — sign in for live projections</div>
         <div className="pitch">
           {PREVIEW.map((row) => (
             <div key={row.label}>
