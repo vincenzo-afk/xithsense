@@ -8,11 +8,20 @@ import './index.css'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,  // 5 minutes
-      retry: 1,
+      staleTime: 5 * 60 * 1000,
+      retry: (count, err) => count < 1 && !(err?.response?.status >= 400 && err?.response?.status < 500),
+      refetchOnWindowFocus: false,
     },
   },
 })
+
+// Apply the saved theme before first paint
+try {
+  const saved = JSON.parse(localStorage.getItem('xithsense-ui') || '{}')
+  document.documentElement.dataset.theme = saved?.state?.theme || 'dark'
+} catch {
+  document.documentElement.dataset.theme = 'dark'
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

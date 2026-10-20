@@ -8,25 +8,18 @@ export const useAuthStore = create(
       token: null,
       refreshToken: null,
 
-      setAuth: (user, token, refreshToken) => set({ user, token, refreshToken }),
-
+      setAuth: (user, token, refreshToken) => set({ user, token, refreshToken: refreshToken ?? get().refreshToken }),
+      setUser: (user) => set({ user }),
       logout: () => set({ user: null, token: null, refreshToken: null }),
-
-      updateUser: (updates) => set((state) => ({
-        user: state.user ? { ...state.user, ...updates } : null,
-      })),
+      updateUser: (updates) => set((s) => ({ user: s.user ? { ...s.user, ...updates } : null })),
 
       isAuthenticated: () => !!get().token,
-      isPremium: () => get().user?.role === 'premium' || get().user?.role === 'admin',
+      isPremium: () => ['premium', 'admin'].includes(get().user?.role),
       isAdmin: () => get().user?.role === 'admin',
     }),
     {
       name: 'xithsense-auth',
-      partialize: (state) => ({
-        user: state.user,
-        token: state.token,
-        refreshToken: state.refreshToken,
-      }),
-    }
-  )
+      partialize: (s) => ({ user: s.user, token: s.token, refreshToken: s.refreshToken }),
+    },
+  ),
 )
