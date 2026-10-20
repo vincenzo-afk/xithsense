@@ -16,7 +16,7 @@
   {
     "id": "RULE-0002",
     "rule_type": "player",
-    "player_key": "Rohit, RG",
+    "player_key": "Sharma, RG",
     "condition": { "opposition_bowling_type": "pace_left", "pitch_type": "pace" },
     "impact_score": -18,
     "confidence": 0.82,
