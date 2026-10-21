@@ -46,11 +46,21 @@ class Settings(BaseSettings):
     QDRANT_COLLECTION_RULES: str = "human_rules"
 
     # ── LLM ──────────────────────────────────────
-    LLM_PROVIDER: str = "anthropic"             # anthropic | openai | google
+    LLM_PROVIDER: str = "groq"                  # groq | anthropic | openai | google
+    GROQ_API_KEY: Optional[str] = None
+    GROQ_BASE_URL: str = "https://api.groq.com/openai/v1"
     ANTHROPIC_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
     GOOGLE_API_KEY: Optional[str] = None
-    LLM_MODEL: str = "claude-sonnet-5-5"
+    LLM_MODEL: Optional[str] = None             # override the provider default model
+    AGENT_MAX_STEPS: int = 6                    # tool-calling rounds per chat turn
+    AGENT_TIMEOUT_SECONDS: float = 45.0
+
+    # ── Web research for the assistant ───────────
+    WEB_SEARCH_ENABLED: bool = True
+    TAVILY_API_KEY: Optional[str] = None        # optional; DuckDuckGo HTML is used otherwise
+    WEB_FETCH_MAX_CHARS: int = 6000
+    WEB_CACHE_MINUTES: int = 30
     LLM_TIMEOUT_SECONDS: float = 5.0
     LLM_MAX_TOKENS: int = 1024
     LLM_TEMPERATURE: float = 0.3
@@ -118,8 +128,7 @@ class Settings(BaseSettings):
     FIXTURE_DAYS_AHEAD: int = 10
     TRACKED_SERIES_MAX: int = 8
 
-    # ── Demo / dev ───────────────────────────────
-    DEMO_MODE: bool = True                      # simulated checkout when Razorpay keys are absent (never in production)
+    # ── Dev ──────────────────────────────────────
     RATE_LIMIT_ENABLED: bool = True
     LLM_TIMEOUT_SECONDS: float = 5.0
 

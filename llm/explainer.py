@@ -112,10 +112,8 @@ def _passes_guardrails(text: str) -> bool:
 
 
 def llm_available() -> bool:
-    p = settings.LLM_PROVIDER.lower()
-    key = {"anthropic": settings.ANTHROPIC_API_KEY, "openai": settings.OPENAI_API_KEY,
-           "google": settings.GOOGLE_API_KEY}.get(p)
-    return bool(key) and not str(key).endswith("...")
+    from llm.router import llm_available as _available
+    return _available()
 
 
 async def llm_complete(prompt: str, system: Optional[str] = None, max_tokens: int = 300) -> Optional[str]:
