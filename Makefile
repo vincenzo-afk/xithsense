@@ -28,7 +28,7 @@ setup: install
 	@test -f .env || cp .env.example .env
 
 bootstrap:
-	$(PY) -m scripts.bootstrap --test-users
+	$(PY) -m scripts.bootstrap
 
 fixtures:
 	$(PY) -m scripts.sync_fixtures
