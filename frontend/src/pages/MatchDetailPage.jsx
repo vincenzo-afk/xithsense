@@ -53,6 +53,7 @@ function Hero({ m }) {
           {m.playing_xi_confirmed && <Badge tone="success"><ShieldCheck size={11} />XI confirmed</Badge>}
           {!m.playing_xi_confirmed && m.squad_source === 'official' && <Badge tone="success"><ShieldCheck size={11} />Official squad</Badge>}
           {!m.playing_xi_confirmed && m.squad_source === 'probable' && <Badge tone="gray"><Users size={11} />Probable XI</Badge>}
+          {m.squad_source === 'partial' && <Badge tone="warning"><Users size={11} />Squad incomplete</Badge>}
         </div>
         {m.status === 'live' && <ButtonLink to={`/matches/${m.id}/live`} variant="danger" size="sm" icon={Radio}>Live centre</ButtonLink>}
       </div>
@@ -201,7 +202,12 @@ function AiTeamTab({ match, premium, onPlayer }) {
           <Alert tone="info" title="Probable XIs">Squads are probable XIs built from each team's recent line-ups in real match data. Official squads replace them when announced.</Alert>
         </div>
       )}
-      {!xiConfirmed && match.squad_source !== 'probable' && (
+      {match.squad_source === 'partial' && (
+        <div className="mb-16">
+          <Alert tone="warning" title="Squad incomplete">One side has no recent match data to build a probable XI from (Cricsheet doesn't publish every team — e.g. Afghanistan men). Predictions unlock automatically when the official squad is announced.</Alert>
+        </div>
+      )}
+      {!xiConfirmed && !['probable', 'partial'].includes(match.squad_source) && (
         <div className="mb-16">
           <Alert tone="info" title="Playing XI not announced">Predictions use the full squad; regenerate after the toss once line-ups are confirmed.</Alert>
         </div>

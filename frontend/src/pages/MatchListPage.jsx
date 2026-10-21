@@ -24,6 +24,7 @@ function TossLine({ m }) {
 export function SquadBadge({ source }) {
   if (source === 'official') return <Badge tone="success"><ShieldCheck size={11} />Official squad</Badge>
   if (source === 'probable') return <Badge tone="gray"><Users size={11} />Probable XI</Badge>
+  if (source === 'partial') return <Badge tone="warning"><Users size={11} />Squad incomplete</Badge>
   if (source === 'manual') return <Badge tone="gray">Manual squad</Badge>
   return null
 }

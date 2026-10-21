@@ -261,3 +261,13 @@ async def test_credits_are_spread_and_stars_are_priced_up(client, tokens, match_
     # score fewer canonical fantasy points than top-order batters
     bowlers = [p["credits"] for p in players if p["role"] == "BOWL"]
     assert bowlers and max(bowlers) >= 9.0
+
+
+async def test_partial_squad_when_a_side_has_no_history(client, tokens):
+    start = (datetime.now(timezone.utc) + timedelta(days=2)).isoformat()
+    r = await client.post("/api/v1/admin/fixtures", headers=tokens["admin"], json={
+        "team_a": "Chennai Super Kings", "team_b": "Afghanistan", "match_type": "T20", "start_time": start})
+    assert r.status_code == 201 and r.json()["squad_source"] == "partial"
+    p = await client.post("/api/v1/predict/team", json={"match_id": r.json()["id"]}, headers=tokens["free"])
+    assert p.status_code == 400 and p.json()["error"]["code"] == "PREDICTION_NO_PLAYERS"
+    assert "official squad" in p.json()["error"]["message"]
