@@ -407,7 +407,9 @@ class ChatResponse(BaseModel):
     intent: str = "GENERAL_STRATEGY"
     related_players: List[RelatedPlayer] = []
     sources_used: List[str] = []
-    answer_source: str = "engine"            # llm | engine
+    answer_source: str = "engine"            # engine | agent:<provider>
+    tools_used: List[Dict[str, Any]] = []    # [{name, summary}]
+    sources: List[Dict[str, str]] = []       # [{title, url}]
 
 
 class ChatMessageOut(BaseModel):
@@ -429,7 +431,7 @@ class ChatSessionOut(BaseModel):
 # ── Admin ─────────────────────────────────────────────────────────────────────
 
 class IngestRequest(_In):
-    source: str = "data/raw/demo"
+    source: str = "data/raw/all_json.zip"
     incremental: bool = True
 
 
@@ -537,7 +539,7 @@ class CreateSubscriptionResponse(BaseModel):
     amount: int
     currency: str = "INR"
     plan: str
-    checkout_mode: str = "razorpay"          # razorpay | simulated
+    checkout_mode: str = "razorpay"
 
 
 class VerifyPaymentRequest(_In):

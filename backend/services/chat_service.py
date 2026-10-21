@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models import ChatMessage, ChatSession, Match, MatchupStat, User, VenueStat
 from backend.schemas import ChatResponse, RelatedPlayer
 from backend.services.engine import MatchScores, PlayerScore, score_match
-from llm.explainer import build_factors, confidence_label, llm_complete
+from llm.explainer import build_factors, confidence_label
 from optimizer.captain_engine import recommend
 from optimizer.lp_optimizer import solve_team
 from optimizer.scoring import score_for_mode
@@ -27,6 +27,7 @@ OUT_OF_SCOPE_REPLY = ("I can only help with fantasy cricket decisions for matche
                       "differentials, matchups, venues and team strategy. What would you like to know about today's match?")
 
 INTENTS = [
+    ("NEWS_QUERY", r"\b(news|injur|update|announce|playing xi|line-?up|pitch report|weather|rain|latest|confirmed|ruled out)\b"),
     ("CAPTAIN_PICK", r"\b(captain|c/vc|vice[- ]?captain|armband|\bvc\b)"),
     ("DIFFERENTIAL", r"\b(differential|low[- ]owned|ownership|punt|contrarian|grand league|gl\b)"),
     ("TEAM_PICK", r"\b(team|xi|lineup|squad|pick my|best 11|eleven)"),
@@ -91,23 +92,41 @@ class ChatService:
         session.message_count += 1
 
         text = message[:500]
-        intent = "OUT_OF_SCOPE" if INJECTION.search(text) else classify(text)
+        from llm.agent import REFUSAL, is_cricket_question, run_agent
+        scope_terms = [match.team_a, match.team_b] if match else []
+        ms: Optional[MatchScores] = None
+        if match is not None and match.squad_source != "partial":
+            try:
+                ms = await score_match(self.db, match.id)
+                scope_terms += [p.full_name for p in ms.players]
+            except ValueError:
+                ms = None
+        intent = "OUT_OF_SCOPE" if (INJECTION.search(text) or not is_cricket_question(text, scope_terms)) else classify(text)
         related: List[PlayerScore] = []
         sources: List[str] = []
+        tools_used: List[dict] = []
+        links: List[dict] = []
+        answer, source = None, "engine"
         if intent == "OUT_OF_SCOPE":
-            answer, source = OUT_OF_SCOPE_REPLY, "engine"
-        elif match is None:
-            answer, source = "There are no upcoming matches loaded yet — ask an admin to ingest fixtures.", "engine"
+            answer = REFUSAL
         else:
-            ms = await score_match(self.db, match.id)
-            draft, related, sources = await self._grounded(intent, text, ms)
-            context = (f"{match.team_a} vs {match.team_b}, {match.venue_name}, {match.match_type}, "
-                       f"{match.match_date}; toss: {match.toss_winner or 'pending'} {match.toss_decision or ''}")
-            convo = "\n".join(f"{h.role}: {h.content[:300]}" for h in reversed(history))
-            llm = await llm_complete(f"[CONVERSATION HISTORY]\n{convo}\n\n[MATCH CONTEXT]\n{context}\n\n"
-                                     f"[GROUNDED ANSWER]\n{draft}\n\n[QUESTION]\n{text}",
-                                     system=SYSTEM, max_tokens=300)
-            answer, source = (llm, "llm") if llm and len(llm.split()) >= 8 else (draft, "engine")
+            hist = [{"role": h.role, "content": h.content} for h in reversed(history)]
+            premium = user.role in ("premium", "admin")
+            result = await run_agent(self.db, user, text, match, history=hist, premium=premium)
+            if result is not None:
+                answer, source = result.answer, f"agent:{result.provider}"
+                tools_used, links = result.tools_used, result.sources
+                sources = sorted({t["name"] for t in tools_used})
+                if result.related_player_ids and ms is not None:
+                    related = [ms.by_id[pid] for pid in result.related_player_ids if pid in ms.by_id]
+            elif match is None:
+                answer = "There are no upcoming fixtures loaded yet — ask an admin to sync fixtures."
+            elif ms is None:
+                answer = ("Squads aren't complete for this fixture yet (one side has no recent match data), so I can't "
+                          "project players. Ask me again once the official squad is announced.")
+            else:
+                answer, related, sources = await self._grounded(intent, text, ms)
+                links = [{"title": s, "url": s} for s in sources if s.startswith("http")]
 
         self.db.add(ChatMessage(session_id=session.id, role="assistant", content=answer))
         await self.db.commit()
@@ -117,13 +136,25 @@ class ChatService:
                 seen.add(p.player_id)
                 rel.append(RelatedPlayer(player_id=uuid.UUID(p.player_id), full_name=p.full_name))
         return ChatResponse(session_id=session.id, answer=answer, intent=intent, related_players=rel[:8],
-                            sources_used=sources, answer_source=source)
+                            sources_used=sources, answer_source=source, tools_used=tools_used, sources=links)
 
     # ── grounded answers ──────────────────────────────────────────────────
     async def _grounded(self, intent: str, text: str, ms: MatchScores) -> Tuple[str, List[PlayerScore], List[str]]:
         m = ms.match
         mentioned = find_players(text, ms.players)
         head = f"**{m.team_a} vs {m.team_b}** · {(m.venue_name or '').split(',')[0]}\n\n"
+        if intent == "NEWS_QUERY":
+            from integrations import web
+            results = await web.search(self.db, f"{m.team_a} vs {m.team_b} {text}", max_results=5)
+            if not results:
+                return (head + "I couldn't reach the web for news right now. Projections, captaincy and matchups are still "
+                        "available from the match data."), [], []
+            lines = [head + "**Latest from the web**"]
+            for r in results:
+                lines.append(f"- [{r['title']}]({r['url']}) — {r.get('snippet', '')[:160]}")
+            lines.append("\nI can't verify these myself; check the source before locking a team.")
+            return "\n".join(lines), [], [r["url"] for r in results]
+
         if intent == "CAPTAIN_PICK" or (intent == "PLAYER_EXPLAIN" and "captain" in text.lower()):
             mode = "grand_league" if re.search(r"grand|gl\b|mega", text.lower()) else "safe"
             opts = [p.to_opt() for p in ms.players]
