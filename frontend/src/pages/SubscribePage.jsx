@@ -183,6 +183,7 @@ export default function SubscribePage() {
           Continue with {selected.name} · ₹{selected.price.toLocaleString('en-IN')}
         </Button>
         <span className="row gap-6 xs muted"><Lock size={12} />Secure checkout via Razorpay · cancel any time</span>
+        {error && stage === 'idle' && <div style={{ maxWidth: 560, width: '100%' }}><Alert tone="warning" title="Checkout unavailable">{error}</Alert></div>}
       </div>
 
       <div className="section-title"><h3>Free vs Premium</h3></div>
