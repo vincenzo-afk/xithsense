@@ -8,7 +8,7 @@ from llm import agent as A
 from llm import tools as T
 from llm.providers.base import ChatTurn, LLMProvider, ToolCall, parse_arguments
 from llm.providers.openai_compat import OpenAICompatProvider
-from integrations.web import cricket_query, extract_text, is_safe_url, parse_ddg_html
+from integrations.web import cricket_query, extract_text, is_safe_url, parse_ddg_html, parse_google_news_rss
 
 
 class ScriptedProvider(LLMProvider):
@@ -178,3 +178,21 @@ def test_ssrf_guard():
     assert not asyncio.run(is_safe_url("http://127.0.0.1:8000/health"))
     assert not asyncio.run(is_safe_url("file:///etc/passwd"))
     assert not asyncio.run(is_safe_url("http://169.254.169.254/latest/meta-data"))
+
+
+GNEWS_RSS = """<?xml version="1.0"?><rss version="2.0"><channel><title>x</title>
+<item><title>CSK vs MI: Will Rohit Sharma play? - Yahoo Sports</title>
+<link>https://news.google.com/rss/articles/CBMiAbc</link><pubDate>Fri, 01 May 2026 07:00:00 GMT</pubDate>
+<description>&lt;a href="https://sports.yahoo.com/csk-mi-rohit"&gt;CSK vs MI: Will Rohit Sharma play?&lt;/a&gt;&amp;nbsp;&amp;nbsp;Yahoo Sports</description>
+<source url="https://sports.yahoo.com">Yahoo Sports</source></item>
+<item><title>No link item</title><description>plain</description></item>
+</channel></rss>"""
+
+
+def test_parse_google_news_rss_prefers_publisher_link():
+    rows = parse_google_news_rss(GNEWS_RSS)
+    assert len(rows) == 1
+    assert rows[0]["url"] == "https://sports.yahoo.com/csk-mi-rohit"
+    assert rows[0]["source"] == "Yahoo Sports" and rows[0]["published"].startswith("Fri, 01 May 2026")
+    assert "Rohit Sharma" in rows[0]["title"]
+    assert parse_google_news_rss("not xml") == []

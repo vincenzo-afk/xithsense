@@ -1,7 +1,8 @@
 """
 Web research for the assistant: search + page fetch, cached and SSRF-guarded.
 
-search(): Tavily when TAVILY_API_KEY is set, otherwise DuckDuckGo's HTML endpoint (no key).
+search(): Tavily when TAVILY_API_KEY is set; otherwise Google News RSS (keyless, dated, with the
+          publisher) and DuckDuckGo HTML as a last resort (it often answers bots with a challenge page).
 fetch():  GET a public http(s) page, extract readable text (trafilatura → BeautifulSoup fallback).
 Both cache in `api_cache` for WEB_CACHE_MINUTES. Queries without cricket vocabulary get
 "cricket" appended so results stay on topic.
@@ -16,6 +17,8 @@ import socket
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 from urllib.parse import parse_qs, quote_plus, urlparse
+
+import xml.etree.ElementTree as ET
 
 import httpx
 
@@ -113,6 +116,35 @@ def parse_ddg_html(html: str, limit: int = 8) -> List[dict]:
     return out
 
 
+def parse_google_news_rss(xml_text: str, limit: int = 8) -> List[dict]:
+    """Google News RSS → [{title, url, snippet, source, published}]. The description HTML carries the
+    publisher link, which fetch_page can read directly; the news.google.com link is the fallback."""
+    from bs4 import BeautifulSoup
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError:
+        return []
+    out: List[dict] = []
+    for item in root.findall(".//item"):
+        title = (item.findtext("title") or "").strip()
+        link = (item.findtext("link") or "").strip()
+        desc_html = item.findtext("description") or ""
+        soup = BeautifulSoup(desc_html, "lxml")
+        a = soup.find("a", href=True)
+        url = a["href"] if a and a["href"].startswith("http") and "news.google.com" not in a["href"] else link
+        src = item.find("source")
+        source = (src.text or "").strip() if src is not None else ""
+        snippet = soup.get_text(" ", strip=True)
+        if source and snippet.endswith(source):
+            snippet = snippet[: -len(source)].strip(" -–|")
+        if title and url:
+            out.append({"title": title, "url": url, "snippet": snippet[:300], "source": source,
+                        "published": (item.findtext("pubDate") or "").strip()})
+        if len(out) >= limit:
+            break
+    return out
+
+
 def _rank(results: List[dict]) -> List[dict]:
     def score(r):
         host = urlparse(r.get("url", "")).hostname or ""
@@ -137,9 +169,14 @@ async def search(db, query: str, max_results: int = 5) -> List[dict]:
                                       json={"api_key": settings.TAVILY_API_KEY, "query": q, "max_results": 8,
                                             "search_depth": "basic", "include_answer": False})
                 r.raise_for_status()
-                results = [{"title": x.get("title", ""), "url": x.get("url", ""), "snippet": (x.get("content") or "")[:300]}
-                           for x in r.json().get("results", [])]
-            else:
+                results = [{"title": x.get("title", ""), "url": x.get("url", ""), "snippet": (x.get("content") or "")[:300],
+                            "source": urlparse(x.get("url", "")).hostname or ""} for x in r.json().get("results", [])]
+            if not results:
+                r = await client.get("https://news.google.com/rss/search",
+                                     params={"q": q, "hl": "en-IN", "gl": "IN", "ceid": "IN:en"})
+                if r.status_code == 200:
+                    results = parse_google_news_rss(r.text)
+            if not results:
                 r = await client.post("https://html.duckduckgo.com/html/", data={"q": q},
                                       headers={"Content-Type": "application/x-www-form-urlencoded"})
                 if r.status_code == 200:
