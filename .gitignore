@@ -103,3 +103,6 @@ ehthumbs.db
 
 # Logs from long-running jobs
 logs_*.txt
+
+# CatBoost training artifacts
+catboost_info/
