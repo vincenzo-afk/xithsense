@@ -126,7 +126,7 @@ class ChatService:
                           "project players. Ask me again once the official squad is announced.")
             else:
                 answer, related, sources = await self._grounded(intent, text, ms)
-                links = [{"title": s, "url": s} for s in sources if s.startswith("http")]
+                links = getattr(self, "_links", None) or [{"title": s, "url": s} for s in sources if s.startswith("http")]
 
         self.db.add(ChatMessage(session_id=session.id, role="assistant", content=answer))
         await self.db.commit()
@@ -151,8 +151,13 @@ class ChatService:
                         "available from the match data."), [], []
             lines = [head + "**Latest from the web**"]
             for r in results:
-                lines.append(f"- [{r['title']}]({r['url']}) — {r.get('snippet', '')[:160]}")
+                title = re.sub(r"\s+-\s+[^-]{2,40}$", "", r["title"]).strip()      # drop trailing " - Publisher"
+                meta = " · ".join(x for x in (r.get("source"), (r.get("published") or "")[:16]) if x)
+                snippet = (r.get("snippet") or "").strip()
+                extra = f" — {snippet[:160]}" if snippet and snippet.lower() not in r["title"].lower() else ""
+                lines.append(f"- **[{title}]({r['url']})**{f' · _{meta}_' if meta else ''}{extra}")
             lines.append("\nI can't verify these myself; check the source before locking a team.")
+            self._links = [{"title": r["title"], "url": r["url"]} for r in results]
             return "\n".join(lines), [], [r["url"] for r in results]
 
         if intent == "CAPTAIN_PICK" or (intent == "PLAYER_EXPLAIN" and "captain" in text.lower()):

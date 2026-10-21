@@ -45,7 +45,7 @@ function Message({ m, onRetry }) {
               {onRetry && <Button size="sm" variant="secondary" icon={RefreshCw} onClick={onRetry}>Retry</Button>}
             </div>
           ) : (
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: ({ node, ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" /> }}>{m.content}</ReactMarkdown>
           )}
         </div>
         {m.tools?.length > 0 && !m.error && (
