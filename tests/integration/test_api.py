@@ -197,15 +197,29 @@ async def test_admin_rules_and_audit(client, tokens):
     assert {"rule.updated", "fixture.created"} <= {e["action"] for e in audit["entries"]}
 
 
-async def test_simulated_upgrade_flow(client):
+async def test_payments_disabled_without_gateway_and_admin_grant(client, tokens):
     reg = await client.post("/api/v1/auth/register", json={"email": "buyer@example.com", "password": "Secret123"})
     h = {"Authorization": f"Bearer {reg.json()['access_token']}"}
-    order = (await client.post("/api/v1/payments/create-subscription", json={"plan": "premium_annual"}, headers=h)).json()
-    assert order["checkout_mode"] == "simulated"
-    ok = await client.post("/api/v1/payments/verify", headers=h, json={"order_id": order["order_id"], "plan": "premium_annual"})
-    assert ok.json()["status"] == "active"
+    uid = reg.json()["user"]["id"]
+    order = await client.post("/api/v1/payments/create-subscription", json={"plan": "premium_annual"}, headers=h)
+    assert order.status_code == 503 and order.json()["error"]["code"] == "PAYMENT_NOT_CONFIGURED"
+    forged = await client.post("/api/v1/payments/verify", headers=h, json={"order_id": "order_x", "plan": "premium_monthly"})
+    assert forged.status_code == 503
+    granted = await client.patch(f"/api/v1/admin/users/{uid}/role", headers=tokens["admin"], json={"role": "premium"})
+    assert granted.status_code == 200
     assert (await client.get("/api/v1/auth/me", headers=h)).json()["role"] == "premium"
     assert (await client.post("/api/v1/payments/cancel", json={}, headers=h)).json()["status"] == "cancelled"
+    assert (await client.post("/api/v1/chat", json={"message": "best differentials?"}, headers=h)).status_code == 200
+
+
+async def test_chat_refuses_off_topic_and_handles_news_without_web(client, tokens, match_id):
+    off = await client.post("/api/v1/chat", json={"message": "Write me a Python function that reverses a string"},
+                            headers=tokens["premium"])
+    assert off.json()["intent"] == "OUT_OF_SCOPE" and "cricket" in off.json()["answer"].lower()
+    news = await client.post("/api/v1/chat", json={"message": "Any injury news before this match?", "match_id": match_id},
+                             headers=tokens["premium"])
+    assert news.status_code == 200 and news.json()["intent"] == "NEWS_QUERY"
+    assert "couldn't reach the web" in news.json()["answer"].lower()      # WEB_SEARCH_ENABLED=false in tests
 
 
 async def test_live_data_status_without_key(client, tokens):

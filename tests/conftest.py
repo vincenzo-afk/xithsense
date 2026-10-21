@@ -17,6 +17,9 @@ os.environ["ANTHROPIC_API_KEY"] = ""      # never call a real LLM from tests
 os.environ["RAZORPAY_KEY_ID"] = ""
 os.environ["RAZORPAY_KEY_SECRET"] = ""
 os.environ["CRICKETDATA_API_KEY"] = ""    # never spend real API quota from tests
+os.environ["GROQ_API_KEY"] = ""
+os.environ["LLM_MODEL"] = ""
+os.environ["WEB_SEARCH_ENABLED"] = "false"  # no network from tests
 
 import pytest  # noqa: E402
 
