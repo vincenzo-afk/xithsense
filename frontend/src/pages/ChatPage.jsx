@@ -4,7 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import {
-  Bot, Crown, History, MapPin, MessageSquareText, Plus, RefreshCw, Send, Shield, Sparkles, Swords, Target, Trash2, User,
+  Bot, Crown, FileText, Globe, History, Link as LinkIcon, MapPin, MessageSquareText, Plus, RefreshCw, Send, Shield, Sparkles,
+  Swords, Target, Trash2, User,
 } from 'lucide-react'
 import {
   apiError, deleteChatSession, getChatMessages, getChatSessions, getMatch, getUpcomingMatches, sendChat,
@@ -17,6 +18,11 @@ import './ops.css'
 const INTENT_LABEL = {
   CAPTAIN_PICK: 'Captaincy', DIFFERENTIAL: 'Differentials', TEAM_PICK: 'Team', MATCHUP_QUERY: 'Matchup',
   VENUE_QUERY: 'Venue', PLAYER_EXPLAIN: 'Player', GENERAL_STRATEGY: 'Strategy', OUT_OF_SCOPE: 'Out of scope',
+  NEWS_QUERY: 'News',
+}
+const TOOL_ICON = {
+  web_search: Globe, fetch_page: FileText, predict_players: Target, build_team: Shield, captain_options: Crown,
+  differentials: Sparkles, player_profile: User, get_match_context: MapPin, list_upcoming_matches: History,
 }
 
 function Message({ m, onRetry }) {
@@ -42,6 +48,17 @@ function Message({ m, onRetry }) {
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
           )}
         </div>
+        {m.tools?.length > 0 && !m.error && (
+          <div className="msg-tools">
+            {m.tools.map((t, i) => { const I = TOOL_ICON[t.name] || Sparkles; return <span key={i} className="tool-chip" title={t.name}><I size={12} />{t.summary}</span> })}
+          </div>
+        )}
+        {m.sources?.length > 0 && !m.error && (
+          <div className="msg-sources">
+            <span className="xs muted upper">Sources</span>
+            {m.sources.map((s, i) => <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" className="source-link"><LinkIcon size={11} />{s.title || s.url}</a>)}
+          </div>
+        )}
         {(m.related?.length > 0 || m.intent) && !m.error && (
           <div className="msg-meta">
             {m.intent && <Badge tone="gray">{INTENT_LABEL[m.intent] || m.intent}</Badge>}
@@ -86,6 +103,7 @@ export default function ChatPage() {
       { icon: Sparkles, text: 'Best differentials for a grand league?' },
       { icon: Shield, text: 'Suggest a safe XI for this match' },
       { icon: MapPin, text: 'How does the pitch play here?' },
+      { icon: Globe, text: 'Any injury or playing XI news for this match?' },
       star && { icon: Target, text: `Is ${star.full_name} a good pick?` },
       batter && { icon: Swords, text: `How does ${batter.full_name} fare against spin and pace?` },
     ].filter(Boolean)
@@ -96,7 +114,7 @@ export default function ChatPage() {
     onSuccess: (data) => {
       const isNew = !sessionId
       setSessionId(data.session_id)
-      setMessages((prev) => [...prev, { role: 'assistant', content: data.answer, intent: data.intent, related: data.related_players }])
+      setMessages((prev) => [...prev, { role: 'assistant', content: data.answer, intent: data.intent, related: data.related_players, tools: data.tools_used, sources: data.sources }])
       if (isNew) qc.invalidateQueries({ queryKey: ['chat-sessions'] })
     },
     onError: (err, text) => {
