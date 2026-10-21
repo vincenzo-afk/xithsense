@@ -1,8 +1,8 @@
 """
 Payments router (PAYMENT_SPEC): Razorpay checkout, verification, webhook, status, cancel.
 
-When Razorpay keys are not configured and DEMO_MODE is on (never in production),
-checkout is simulated so the upgrade flow can be exercised end to end.
+Without Razorpay keys checkout returns 503 PAYMENT_NOT_CONFIGURED; admins can still grant
+Premium from the console.
 """
 from __future__ import annotations
 
@@ -35,10 +35,6 @@ PLAN_DAYS = {"premium_monthly": 30, "premium_annual": 365}
 def razorpay_configured() -> bool:
     k, s = settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET
     return bool(k and s and not k.endswith("...") and s != "...")
-
-
-def simulated_checkout() -> bool:
-    return not razorpay_configured() and settings.DEMO_MODE and not settings.is_production
 
 
 async def activate_premium(db: AsyncSession, user: User, plan: str, order_id: str | None = None,
@@ -75,9 +71,6 @@ async def create_subscription(body: CreateSubscriptionRequest, db: AsyncSession 
                                      "notes": {"user_id": str(user.id), "plan": body.plan}})
         return CreateSubscriptionResponse(order_id=order["id"], razorpay_key_id=settings.RAZORPAY_KEY_ID,
                                           amount=amount, plan=body.plan, checkout_mode="razorpay")
-    if simulated_checkout():
-        return CreateSubscriptionResponse(order_id=f"order_sim_{uuid.uuid4().hex[:14]}", razorpay_key_id=None,
-                                          amount=amount, plan=body.plan, checkout_mode="simulated")
     raise HTTPException(status_code=503, detail={"code": "PAYMENT_NOT_CONFIGURED", "message": "Payment gateway not configured"})
 
 
@@ -85,14 +78,13 @@ async def create_subscription(body: CreateSubscriptionRequest, db: AsyncSession 
 async def verify_payment(body: VerifyPaymentRequest, db: AsyncSession = Depends(get_db),
                          user: User = Depends(get_current_user)):
     """Called by the frontend after checkout succeeds."""
-    if razorpay_configured():
-        expected = hmac.new(settings.RAZORPAY_KEY_SECRET.encode(), f"{body.order_id}|{body.payment_id}".encode(),
-                            hashlib.sha256).hexdigest()
-        if not body.signature or not hmac.compare_digest(expected, body.signature):
-            raise HTTPException(status_code=400, detail={"code": "PAYMENT_VERIFICATION_FAILED",
-                                                         "message": "Payment signature mismatch"})
-    elif not (simulated_checkout() and body.order_id.startswith("order_sim_")):
-        raise HTTPException(status_code=400, detail={"code": "PAYMENT_VERIFICATION_FAILED", "message": "Unknown order"})
+    if not razorpay_configured():
+        raise HTTPException(status_code=503, detail={"code": "PAYMENT_NOT_CONFIGURED", "message": "Payment gateway not configured"})
+    expected = hmac.new(settings.RAZORPAY_KEY_SECRET.encode(), f"{body.order_id}|{body.payment_id}".encode(),
+                        hashlib.sha256).hexdigest()
+    if not body.signature or not hmac.compare_digest(expected, body.signature):
+        raise HTTPException(status_code=400, detail={"code": "PAYMENT_VERIFICATION_FAILED",
+                                                     "message": "Payment signature mismatch"})
     sub = await activate_premium(db, user, body.plan, order_id=body.order_id)
     return SubscriptionOut.model_validate(sub)
 

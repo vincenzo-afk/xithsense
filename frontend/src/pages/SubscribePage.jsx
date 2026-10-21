@@ -5,7 +5,7 @@ import { ArrowRight, Check, CreditCard, Crown, Lock, ShieldCheck, Sparkles, X, Z
 import { apiError, createSubscription, getMe, verifyPayment } from '../api/client'
 import { useAuthStore } from '../store/authStore'
 import { toast } from '../store/uiStore'
-import { Alert, Badge, Button, ButtonLink, Card, Modal, PageHead } from '../components/ui'
+import { Alert, Badge, Button, ButtonLink, Card, Modal, PageHead, Spinner } from '../components/ui'
 import { fmtDate } from '../lib/format'
 import './public.css'
 
@@ -57,8 +57,8 @@ export default function SubscribePage() {
   const qc = useQueryClient()
   const { user, setUser, isPremium } = useAuthStore()
   const [plan, setPlan] = useState('premium_annual')
-  const [order, setOrder] = useState(null)        // simulated order
-  const [stage, setStage] = useState('idle')      // idle | creating | review | paying | success
+  const [order, setOrder] = useState(null)        // Razorpay order
+  const [stage, setStage] = useState('idle')      // idle | creating | paying | success
   const [error, setError] = useState('')
   const timer = useRef(null)
   useEffect(() => () => clearTimeout(timer.current), [])
@@ -78,11 +78,6 @@ export default function SubscribePage() {
     setStage('creating')
     try {
       const o = await createSubscription({ plan })
-      if (o.checkout_mode === 'simulated') {
-        setOrder(o)
-        setStage('review')
-        return
-      }
       const Razorpay = await loadRazorpay()
       setStage('idle')
       const rzp = new Razorpay({
@@ -106,19 +101,8 @@ export default function SubscribePage() {
     } catch (err) {
       setStage('idle')
       const e = apiError(err)
-      toast.error('Checkout unavailable', e.message)
-    }
-  }
-
-  const pay = async () => {
-    setError('')
-    setStage('paying')
-    try {
-      await verifyPayment({ order_id: order.order_id, plan })
-      await finish()
-    } catch (err) {
-      setStage('review')
-      setError(apiError(err).message)
+      if (e.code === 'PAYMENT_NOT_CONFIGURED') setError('Online payments are not enabled on this deployment yet. Contact support to upgrade your account.')
+      else toast.error('Checkout unavailable', e.message)
     }
   }
 
@@ -227,7 +211,7 @@ export default function SubscribePage() {
       <p className="text-center small mt-24"><Link to="/matches" className="muted">Continue with the free plan →</Link></p>
 
       <Modal open={['review', 'paying', 'success'].includes(stage)} onClose={closeModal}
-        title={stage === 'success' ? null : <span className="row gap-8"><CreditCard size={17} />Demo checkout</span>} width={460}>
+        title={stage === 'success' ? null : <span className="row gap-8"><CreditCard size={17} />Secure checkout</span>} width={460}>
         {stage === 'success' ? (
           <div className="text-center col" style={{ alignItems: 'center', gap: 10, padding: '8px 0' }}>
             <div className="success-burst">
@@ -239,28 +223,11 @@ export default function SubscribePage() {
             <ButtonLink to="/matches" className="mt-8">Go to matches <ArrowRight size={16} /></ButtonLink>
           </div>
         ) : (
-          <div className="col gap-16">
-            <Alert tone="warning" title="Test mode">No real payment is taken — this simulated checkout is enabled because Razorpay keys are not configured.</Alert>
-            <div className="cc-card">
-              <div className="row between" style={{ position: 'relative', zIndex: 1 }}>
-                <span className="chip-icon" />
-                <span className="bold">XithSense</span>
-              </div>
-              <div className="cc-num">4111 1111 1111 1111</div>
-              <div className="row between small" style={{ position: 'relative', zIndex: 1, opacity: 0.9 }}>
-                <span>{(user?.full_name || user?.email || 'Card holder').toUpperCase()}</span><span className="mono">12/29</span>
-              </div>
-            </div>
-            <div>
-              <div className="kv"><span>Plan</span><b>{selected.name}</b></div>
-              <div className="kv"><span>Order</span><span className="mono xs">{order?.order_id}</span></div>
-              <div className="kv"><span>Total</span><b className="mono">₹{((order?.amount || selected.price * 100) / 100).toLocaleString('en-IN')}</b></div>
-            </div>
+          <div className="col gap-16 text-center" style={{ alignItems: 'center', padding: '12px 0' }}>
+            <Spinner size={28} />
+            <div className="bold">Confirming your payment…</div>
+            <p className="small">Order <span className="mono xs">{order?.order_id}</span></p>
             {error && <Alert tone="danger">{error}</Alert>}
-            <Button variant="gold" size="lg" block loading={stage === 'paying'} onClick={pay} icon={Lock}>
-              {stage === 'paying' ? 'Processing…' : `Pay ₹${selected.price.toLocaleString('en-IN')}`}
-            </Button>
-            <button className="small muted" onClick={closeModal} disabled={stage === 'paying'}>Cancel</button>
           </div>
         )}
       </Modal>

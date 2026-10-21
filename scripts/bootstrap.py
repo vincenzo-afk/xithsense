@@ -7,7 +7,7 @@ One-shot setup on real data.
 
 Steps: (optional) ingest Cricsheet → feature store + inferred bowling styles →
 train T20/ODI/Test ensembles → backtest recent T20s → sync live fixtures from
-CricketData → ensure the admin account (and optional test accounts) exist.
+CricketData → ensure the admin account exists.
 """
 from __future__ import annotations
 
@@ -30,12 +30,6 @@ from backend.security import hash_password  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("bootstrap")
-
-TEST_USERS = [
-    ("premium@xithsense.app", "Premium@1234", "Premium Tester", "premium"),
-    ("free@xithsense.app", "Free@1234", "Free Tester", "free"),
-]
-
 
 async def ensure_user(db, email: str, password: str, name: str, role: str) -> bool:
     if (await db.execute(select(User).where(User.email == email))).scalar_one_or_none():
@@ -115,10 +109,6 @@ async def main(a) -> None:
         pw = a.admin_password or secrets.token_urlsafe(10)
         if await ensure_user(db, a.admin_email, pw, "Administrator", "admin"):
             print(f"\nAdmin account created: {a.admin_email} / {pw}")
-        if a.test_users:
-            for email, p, name, role in TEST_USERS:
-                if await ensure_user(db, email, p, name, role):
-                    print(f"Test account: {email} / {p} ({role})")
 
 
 if __name__ == "__main__":
@@ -131,5 +121,4 @@ if __name__ == "__main__":
     ap.add_argument("--backtest-n", type=int, default=300)
     ap.add_argument("--admin-email", default="admin@xithsense.app")
     ap.add_argument("--admin-password")
-    ap.add_argument("--test-users", action="store_true", help="also create premium@ / free@ test accounts")
     asyncio.run(main(ap.parse_args()))
