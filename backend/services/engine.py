@@ -158,7 +158,8 @@ async def score_match(db: AsyncSession, match_id: str, override_toss: Optional[d
     )).all()
     if match.playing_xi_confirmed:
         rows = [r for r in rows if r[0].is_playing]
-    if len({r[0].team for r in rows}) < 2:
+    per_team = {t: sum(1 for ptm, _ in rows if ptm.team == t) for t in (match.team_a, match.team_b)}
+    if min(per_team.values()) < 11:
         raise ValueError("PREDICTION_NO_PLAYERS")
 
     batting_first = None

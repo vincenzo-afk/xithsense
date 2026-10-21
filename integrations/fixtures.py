@@ -286,6 +286,8 @@ async def build_squads(db: AsyncSession, m: Match, use_official: bool = False) -
         for order, pid in enumerate(ids, start=1):
             db.add(PlayerTeamMatch(match_id=m.id, player_id=pid, team=team, batting_order=order,
                                    is_playing=True, credits=credits.get(pid, 8.0)))
+    if source == "probable" and any(len(picked.get(t, [])) < 11 for t in (m.team_a, m.team_b)):
+        source = "partial"        # a side has no usable history (e.g. Cricsheet withholds Afghanistan men)
     m.squad_source = source if any(picked.values()) else None
     await db.flush()
     return source
@@ -387,6 +389,9 @@ async def upsert_api_match(db: AsyncSession, am: dict, series_name: str, index: 
     await db.flush()
     if new or not m.squad_source:
         await build_squads(db, m, use_official=False)
+    # No usable history for a side: try the official squad once the match is close (10 hits, quota-guarded)
+    if m.squad_source == "partial" and am.get("hasSquad") and start - datetime.now(timezone.utc) < timedelta(hours=36):
+        await build_squads(db, m, use_official=True)
     return m
 
 

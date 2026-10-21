@@ -57,7 +57,9 @@ class PredictionService:
             raise _err(404, "MATCH_NOT_FOUND", f"Match {match_id} not found")
         except ValueError as e:
             if "PREDICTION_NO_PLAYERS" in str(e):
-                raise _err(400, "PREDICTION_NO_PLAYERS", "Both teams need players in the squad to predict")
+                raise _err(400, "PREDICTION_NO_PLAYERS",
+                           "A squad isn't available for one of the teams yet — there is no recent match data to build "
+                           "a probable XI from. Predictions unlock when the official squad is announced.")
             raise
 
     def _pool(self, ms: MatchScores, override_xi: Optional[Dict[str, List[str]]] = None) -> List[PlayerScore]:
